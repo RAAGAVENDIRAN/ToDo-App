@@ -3,9 +3,9 @@ import React from "react";
 import { StyleSheet, TouchableOpacity, Text } from "react-native";
 import colors from "../config/colors";
 
-function Bottom({ submitHandler }) {
+function Bottom({ navigated }) {
   return (
-    <TouchableOpacity style={styles.buttonDesign} onPress={submitHandler}>
+    <TouchableOpacity style={styles.buttonDesign} onPress={navigated}>
       <Text style={styles.text}>+</Text>
     </TouchableOpacity>
   );
