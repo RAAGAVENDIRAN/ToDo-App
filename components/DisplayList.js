@@ -9,13 +9,14 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 import Animated, {
   useAnimatedGestureHandler,
   useAnimatedStyle,
   withTiming,
   useSharedValue,
+  runOnJS,
 } from "react-native-reanimated";
 import {
   GestureHandlerRootView,
@@ -29,56 +30,100 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const LIST_ITEM_HEIGHT = 70;
 
-function DisplayList({ item, pressHandler }) {
+function DisplayList({ item, pressHandler, todos, handleEdit }) {
   const [isChecked, setChecked] = useState(item.completed ? 1 : 0);
 
-  const rightSwipe = (progress, dragX) => {
-    const scale = dragX.interpolate({
-      inputRange: [0, 100],
-      outputRange: [0, 1],
-      extrapolate: "clamp",
-    });
+  const TRANSLATE_X_THRESHOLD = SCREEN_WIDTH * 0.3;
+  const translateX = useSharedValue(0);
+  const itemHeight = useSharedValue(70);
+  const marginVertical = useSharedValue(5);
+  const opacity = useSharedValue(1);
 
-    return (
-      <View style={styles.deleteBox}>
-        <MaterialIcons
-          name="delete"
-          size={30}
-          color="#391e7e"
-          onPress={() => pressHandler(item.id)}
-        />
-      </View>
+  const pan = useAnimatedGestureHandler({
+    onActive: (event) => {
+      translateX.value = event.translationX;
+    },
+    onEnd: () => {
+      const shouldBeDismissed = translateX.value * -1 > TRANSLATE_X_THRESHOLD;
+      if (shouldBeDismissed) {
+        translateX.value = withTiming(-SCREEN_WIDTH);
+        itemHeight.value = withTiming(0);
+        marginVertical.value = withTiming(0);
+        opacity.value = withTiming(0, undefined, (isFinished) => {
+          if (isFinished) {
+            runOnJS(pressHandler)(item.id);
+          }
+          // pressHandler;
+        });
+      } else {
+        translateX.value = withTiming(0);
+      }
+    },
+  });
+
+  const rStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateX: translateX.value,
+      },
+    ],
+  }));
+
+  const rIconContainerStyle = useAnimatedStyle(() => {
+    const opacity = withTiming(
+      translateX.value < TRANSLATE_X_THRESHOLD ? 1 : 0
     );
-  };
-  return (
-    <GestureHandlerRootView>
-      <Swipeable renderRightActions={rightSwipe}>
-        <View style={styles.container}>
-          <RadioButton
-            style={styles.check}
-            status={checks[isChecked]}
-            onPress={() => {
-              setChecked(isChecked ^ 1);
-            }}
-          />
+    return { opacity };
+  });
 
-          <View style={{ flex: 8 }}>
-            <Text
-              numberOfLines={2}
-              ellipsizeMode="tail"
-              style={[
-                styles.DesignText,
-                isChecked
-                  ? { textDecorationLine: "line-through" }
-                  : { textDecorationLine: "none" },
-              ]}
-            >
-              {item.title}
-            </Text>
-          </View>
-        </View>
-      </Swipeable>
-    </GestureHandlerRootView>
+  const rTaskContainerStyle = useAnimatedStyle(() => {
+    return {
+      height: itemHeight.value,
+      marginVertical: marginVertical.value,
+      opacity: opacity.value,
+    };
+  });
+  return (
+    <>
+      {todos.length === 0 && <Text>You have no ToDos</Text>}
+      <GestureHandlerRootView>
+        <Animated.View style={rTaskContainerStyle}>
+          <Animated.View style={[styles.iconContainer, rIconContainerStyle]}>
+            <FontAwesome5
+              name={"trash-alt"}
+              size={70 * 0.4}
+              color={"red"}
+            ></FontAwesome5>
+          </Animated.View>
+          <PanGestureHandler onGestureEvent={pan}>
+            <Animated.View style={[styles.container, rStyle]}>
+              <RadioButton
+                style={styles.check}
+                status={checks[isChecked]}
+                onPress={() => {
+                  setChecked(isChecked ^ 1);
+                }}
+              />
+
+              <View style={{ flex: 8 }}>
+                <Text
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                  style={[
+                    styles.DesignText,
+                    isChecked
+                      ? { textDecorationLine: "line-through" }
+                      : { textDecorationLine: "none" },
+                  ]}
+                >
+                  {item.title}
+                </Text>
+              </View>
+            </Animated.View>
+          </PanGestureHandler>
+        </Animated.View>
+      </GestureHandlerRootView>
+    </>
   );
 }
 

@@ -13,65 +13,117 @@ import axios from "axios";
 import AddToDo from "../components/AddToDo";
 import DisplayList from "../components/DisplayList";
 import AppButton from "../components/AppButton";
-
 import Header from "../components/Header";
+
 import Bottom from "../components/Bottom";
 
 function ToDoList() {
-  const [toDos, setTodos] = useState([]);
-
-  const [text, setText] = useState("");
+  const [todos, setTodos] = useState([]);
+  const [todoInputValue, setTodoInputValue] = useState("");
 
   const changeHandler = (val) => {
-    setText(val);
+    setTodoInputValue(val);
   };
 
   //using useEffect to fetch Data from jsonHolder Api.
   useEffect(() => {
     async function getToDo() {
       const result = await axios("https://jsonplaceholder.typicode.com/todos");
-      setTodos([...result.data].slice(10, 30));
+      setTodos([...result.data].slice(0, 3));
     }
 
     getToDo();
   }, []);
 
+  useEffect(() => {
+    console.log(todos);
+  }, [todos]);
+
   const pressHandler = (id) => {
-    setTodos((prevTodos) => {
-      return prevTodos.filter((todo) => todo.id != id);
+    let newtodos = todos.filter((todos) => {
+      if (todos.id != id) return todos;
     });
+
+    setTodos(newtodos);
   };
 
-  const submitHandler = (text) => {
-    if (text.length > 3) {
-      setTodos((prevTodos) => {
-        return [
-          { title: text, id: Math.random().toString(), completed: false },
-          ...prevTodos,
-        ];
-      });
+  //submitting
+  const submitHandler = (todoInputValue) => {
+    if (todoInputValue.trim() === "") return;
+    if (todoInputValue.length > 3) {
+      console.log(todos.length);
+      let newtodos = [
+        {
+          id: Math.random().toString(),
+          title: todoInputValue.trim(),
+          completed: false,
+        },
+        ...todos,
+      ];
+      console.log("new");
+      setTodos([...newtodos]);
+      console.log(newtodos);
+      setTodoInputValue("");
+
+      // setTodos((prevTodos) => {
+
+      //   return [
+      //     { title: text, id: Math.random().toString(), completed: false },
+      //     ...prevTodos,
+      //   ];
+      // });
     } else {
-      Alert.alert("OOPS!", "ToDos must be over 3 chars long", [
+      Alert.alert("OOPS!", "Todos must be over 3 chars long", [
         { text: "Understood" },
       ]);
     }
   };
 
+  //clearToDo
+  const handleClearTodos = () => {
+    Alert.alert("OOPS!", "Your Todos will be deleted", [
+      {
+        text: "Confirm",
+        onPress: () => {
+          setTodos([]);
+        },
+      },
+      {
+        text: "Cancel",
+
+        style: "cancel",
+      },
+    ]);
+
+    console.log(todos);
+  };
+
+  //Editing
+  const handleEdit = () => {
+    alert("Edit Triggerd");
+  };
+
   return (
     <View style={styles.container}>
-      <AddToDo text={text} changeHandler={changeHandler} />
+      <Header handleClearTodos={handleClearTodos} />
+      <AddToDo todoInputValue={todoInputValue} changeHandler={changeHandler} />
       <FlatList
-        data={toDos}
+        data={todos}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View>
-            <DisplayList item={item} pressHandler={pressHandler} />
+            <DisplayList
+              todos={todos}
+              item={item}
+              pressHandler={pressHandler}
+            />
           </View>
         )}
       />
       <View style={styles.bottomView}>
         <Bottom
           submitHandler={() => {
-            submitHandler(text);
+            submitHandler(todoInputValue);
           }}
         />
       </View>
