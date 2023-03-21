@@ -39,7 +39,14 @@ export default function InputModel({ navigation, route }) {
           value={todoInput}
         ></TextInput>
         <View style={styles.buttonGroup}>
-          <TouchableOpacity style={[styles.buttonDesign, istyle]}>
+          <TouchableOpacity
+            style={[styles.buttonDesign, istyle]}
+            onPress={() => {
+              navigation.navigate({
+                name: "TodoList",
+              });
+            }}
+          >
             <Text style={styles.closeText}> X </Text>
           </TouchableOpacity>
 
@@ -76,16 +83,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 50,
     padding: 10,
-    width: "15%",
+    width: "20%",
     marginVertical: 10,
-    marginBottom: 40,
-
     marginHorizontal: 40,
   },
   buttonGroup: {
     flexDirection: "row",
-
     justifyContent: "space-between",
+    shadowOffset: { width: 0, height: 20 },
+    shadowRadius: 35,
+    shadowOpacity: 0.3,
   },
   container: {
     flex: 1,

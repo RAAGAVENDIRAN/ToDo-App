@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { View, TextInput, StyleSheet } from "react-native";
 import AppButton from "./AppButton";
 
-function AddToDo({ todoInputValue, changeHandler }) {
+function SearchToDo({ onChangeText, placeholder, value }) {
   const inputRef = useRef(); //auto focus using Ref
 
   useEffect(() => {
@@ -13,10 +13,10 @@ function AddToDo({ todoInputValue, changeHandler }) {
     <View style={styles.container}>
       <TextInput
         ref={inputRef}
-        onChangeText={changeHandler}
+        onChangeText={onChangeText}
         style={styles.Inputdesign}
-        placeholder={"Why Each To-Do on Your List Is Important. ..."}
-        value={todoInputValue}
+        placeholder={placeholder}
+        value={value}
       />
     </View>
   );
@@ -40,4 +40,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddToDo;
+export default SearchToDo;

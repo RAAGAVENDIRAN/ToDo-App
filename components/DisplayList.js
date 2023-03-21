@@ -17,6 +17,7 @@ import Animated, {
   withTiming,
   useSharedValue,
   runOnJS,
+  withSpring,
 } from "react-native-reanimated";
 import {
   GestureHandlerRootView,
@@ -56,7 +57,7 @@ function DisplayList({ item, pressHandler, todos, handleEdit }) {
           // pressHandler;
         });
       } else {
-        translateX.value = withTiming(0);
+        translateX.value = withSpring(0);
       }
     },
   });
@@ -85,7 +86,7 @@ function DisplayList({ item, pressHandler, todos, handleEdit }) {
   });
   return (
     <>
-      {todos.length === 0 && <Text>You have no ToDos</Text>}
+      {/* {todos.length < 0 && <Text>You have no ToDos</Text>} */}
       <GestureHandlerRootView>
         <Animated.View style={rTaskContainerStyle}>
           <Animated.View style={[styles.iconContainer, rIconContainerStyle]}>
