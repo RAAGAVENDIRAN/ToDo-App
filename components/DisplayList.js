@@ -119,6 +119,7 @@ function DisplayList({ item, pressHandler, todos, handleEdit }) {
                 >
                   {item.title}
                 </Text>
+                <Text style={styles.date}>{item.date}</Text>
               </View>
             </Animated.View>
           </PanGestureHandler>
@@ -153,6 +154,13 @@ const styles = StyleSheet.create({
     width: "90%",
     alignSelf: "center",
   },
+  date: {
+    marginTop: 10,
+    fontSize: 10,
+    color: "white",
+    alignSelf: "flex-end",
+    marginRight: 10,
+  },
   deleteBox: {
     backgroundColor: "red",
     justifyContent: "center",
@@ -164,14 +172,13 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     width: 40,
-
     padding: 10,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
   },
   DesignText: {
-    fontSize: 15,
+    fontSize: 17,
     color: "white",
   },
 

@@ -24,30 +24,19 @@ function ToDoList({ navigation, route }) {
   const [filteredData, setFilteredData] = useState([]);
 
   //using useEffect to fetch Data from jsonHolder Api.
-
-  // useEffect(() => {
-  //   const url = "https://jsonplaceholder.typicode.com/todos";
-
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await fetch(url);
-  //       const json = await response.json();
-  //       setTodos(json);
-  //       setFilteredData(json.results);
-  //     } catch (error) {
-  //       console.log("error", error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
   useEffect(() => {
     async function getToDo() {
       const result = await axios("https://jsonplaceholder.typicode.com/todos");
-      let newtodos = result.data;
-      setTodos([...newtodos].slice(0, 30));
-      setFilteredData([...newtodos].slice(0, 30));
+
+      let newtodos = result.data.filter((item) => {
+        item.date = new Date(Date.now() * Math.random() * 0.99)
+          .toString()
+          .slice(0, 24);
+        return item;
+      });
+
+      setTodos(newtodos.slice(0, 39));
+      setFilteredData(newtodos.slice(0, 39));
     }
 
     getToDo();
@@ -66,7 +55,6 @@ function ToDoList({ navigation, route }) {
   //navigte
   const navigated = () => {
     navigation.navigate("InputModel");
-    console.log("ndjksnd");
   };
 
   //to set the input
@@ -102,6 +90,7 @@ function ToDoList({ navigation, route }) {
           id: Math.random().toString(),
           title: todoInputValue.trim(),
           completed: false,
+          date: new Date(Date.now()).toString().slice(0, 24),
         },
         ...todos,
       ];
