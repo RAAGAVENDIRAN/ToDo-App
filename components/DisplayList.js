@@ -8,6 +8,7 @@ import {
   CheckBox,
   Dimensions,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 
@@ -24,19 +25,20 @@ import {
   PanGestureHandler,
   Swipeable,
 } from "react-native-gesture-handler";
+import { Button } from "@rneui/themed";
 
 const checks = ["unchecked", "checked"];
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const LIST_ITEM_HEIGHT = 70;
+const LIST_ITEM_HEIGHT = 90;
 
-function DisplayList({ item, pressHandler, todos, handleEdit }) {
+function DisplayList({ item, pressHandler, navigationTo }) {
   const [isChecked, setChecked] = useState(item.completed ? 1 : 0);
 
   const TRANSLATE_X_THRESHOLD = SCREEN_WIDTH * 0.3;
   const translateX = useSharedValue(0);
-  const itemHeight = useSharedValue(70);
+  const itemHeight = useSharedValue(90);
   const marginVertical = useSharedValue(5);
   const opacity = useSharedValue(1);
 
@@ -86,45 +88,52 @@ function DisplayList({ item, pressHandler, todos, handleEdit }) {
   });
   return (
     <>
-      {/* {todos.length < 0 && <Text>You have no ToDos</Text>} */}
-      <GestureHandlerRootView>
-        <Animated.View style={rTaskContainerStyle}>
-          <Animated.View style={[styles.iconContainer, rIconContainerStyle]}>
-            <FontAwesome5
-              name={"trash-alt"}
-              size={70 * 0.4}
-              color={"red"}
-            ></FontAwesome5>
-          </Animated.View>
-          <PanGestureHandler onGestureEvent={pan}>
-            <Animated.View style={[styles.container, rStyle]}>
-              <RadioButton
-                style={styles.check}
-                status={checks[isChecked]}
-                onPress={() => {
-                  setChecked(isChecked ^ 1);
-                }}
-              />
-
-              <View style={{ flex: 8 }}>
-                <Text
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                  style={[
-                    styles.DesignText,
-                    isChecked
-                      ? { textDecorationLine: "line-through" }
-                      : { textDecorationLine: "none" },
-                  ]}
-                >
-                  {item.title}
-                </Text>
-                <Text style={styles.date}>{item.date}</Text>
-              </View>
+      <TouchableWithoutFeedback
+        onLongPress={
+          navigationTo}
+      >
+        <GestureHandlerRootView>
+          <Animated.View style={rTaskContainerStyle}>
+            <Animated.View style={[styles.iconContainer, rIconContainerStyle]}>
+              <FontAwesome5
+                name={"trash-alt"}
+                size={70 * 0.4}
+                color={"red"}
+              ></FontAwesome5>
             </Animated.View>
-          </PanGestureHandler>
-        </Animated.View>
-      </GestureHandlerRootView>
+            <PanGestureHandler onGestureEvent={pan}>
+              <Animated.View style={[styles.container, rStyle]}>
+                <RadioButton
+                  style={styles.check}
+                  status={checks[isChecked]}
+                  onPress={() => {
+                    setChecked(isChecked ^ 1);
+                  }}
+                />
+
+                <View style={{ flex: 8 }}>
+                  <Text
+                    numberOfLines={2}
+                    ellipsizeMode="tail"
+                    style={[
+                      styles.DesignText,
+                      isChecked
+                        ? {
+                            textDecorationLine: "line-through",
+                            fontWeight: "normal",
+                          }
+                        : { textDecorationLine: "none" },
+                    ]}
+                  >
+                    {item.title}
+                  </Text>
+                  <Text style={styles.date}>{item.date}</Text>
+                </View>
+              </Animated.View>
+            </PanGestureHandler>
+          </Animated.View>
+        </GestureHandlerRootView>
+      </TouchableWithoutFeedback>
     </>
   );
 }
@@ -144,20 +153,28 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    height: 70,
-    backgroundColor: "#031956",
+    height: 100,
+    backgroundColor: "#F3F8FF",
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
     borderRadius: 10,
+    borderWidth: 0.5,
     marginBottom: 10,
     width: "90%",
     alignSelf: "center",
+    // elevation: 20,
+    // shadowOpacity: 0.08,
+
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 10,
+    // },
   },
   date: {
     marginTop: 10,
     fontSize: 10,
-    color: "white",
+    color: "black",
     alignSelf: "flex-end",
     marginRight: 10,
   },
@@ -178,8 +195,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   DesignText: {
-    fontSize: 17,
-    color: "white",
+    fontSize: 20,
+    color: "black",
+    fontWeight: "bold",
   },
 
   iconContainer: {

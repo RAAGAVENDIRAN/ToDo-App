@@ -8,6 +8,8 @@ import {
   FlatList,
   TextInput,
   Alert,
+  Image,
+  TouchableOpacity,
 } from "react-native";
 
 import axios from "axios";
@@ -61,7 +63,9 @@ function ToDoList({ navigation, route }) {
   useEffect(() => {
     console.log("check time");
     if (route.params?.input) submitHandler(route.params?.input);
-  }, [route.params?.input]);
+    if (route.params?.EditInput && route.params?.Editid)
+      EditHandler(route.params?.EditInput, route.params?.Editid);
+  }, [route.params?.input, route.params?.EditInput, route.params?.Editid]);
 
   //clearToDo
   const handleClearTodos = () => {
@@ -104,10 +108,18 @@ function ToDoList({ navigation, route }) {
     }
   };
 
-  // //Editing
-  // const handleEdit = () => {
-  //   alert("Edit Triggerd");
-  // };
+  // Editing
+  const EditHandler = (text, id) => {
+    const editedData = filteredData.map((item) => {
+      if (item.id == id) {
+        item.title = text;
+        return item;
+      }
+      return item;
+    });
+    setFilteredData(editedData);
+    setTodos(editedData);
+  };
 
   //search Filter Function
   const searchFilterFunction = (newtext) => {
@@ -129,6 +141,7 @@ function ToDoList({ navigation, route }) {
     setSearch(newtext);
     searchFilterFunction(newtext);
   };
+
   return (
     <View style={styles.container}>
       <Header handleClearTodos={handleClearTodos} />
@@ -137,29 +150,26 @@ function ToDoList({ navigation, route }) {
         placeholder={"Search Here"}
         onChangeText={Searching}
       />
-      {/* <AddToDo todoInputValue={todoInputValue} changeHandler={changeHandler} /> */}
+
       <FlatList
         data={filteredData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View>
-            <DisplayList
-              data={filteredData}
-              item={item}
-              pressHandler={pressHandler}
-            />
-          </View>
+          <DisplayList
+            data={filteredData}
+            item={item}
+            navigationTo={() => {
+              navigation.navigate({
+                name: "EditModel",
+                params: { id: item.id },
+                merge: true,
+              });
+            }}
+            pressHandler={pressHandler}
+          />
         )}
       />
-      <View style={styles.bottomView}>
-        {/* <Bottom
-          submitHandler={() => {
-            submitHandler(todoInputValue);
-          }}
-        /> */}
-
-        <Bottom navigated={navigated} />
-      </View>
+      <Bottom navigated={navigated} />
     </View>
   );
 }
@@ -167,7 +177,7 @@ function ToDoList({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#344fa1",
+    backgroundColor: "#C6CFFF",
   },
   bottomView: {
     flexDirection: "row",

@@ -5,8 +5,8 @@ import colors from "../config/colors";
 
 function Bottom({ navigated }) {
   return (
-    <TouchableOpacity style={styles.buttonDesign} onPress={navigated}>
-      <Text style={styles.text}>+</Text>
+    <TouchableOpacity style={styles.touchableOpacity} onPress={navigated}>
+      <Text style={styles.floatingText}>+</Text>
     </TouchableOpacity>
   );
 }
@@ -14,19 +14,20 @@ function Bottom({ navigated }) {
 export default Bottom;
 
 const styles = StyleSheet.create({
-  buttonDesign: {
-    backgroundColor: "#EA8FEA",
+  floatingText: {
+    fontWeight: "bold",
+    fontSize: 60,
+  },
+  touchableOpacity: {
+    backgroundColor: "#E8D3FF",
+    position: "absolute",
+    borderWidth: 0.5,
+    width: 70,
+    height: 70,
+    right: 30,
+    bottom: 30,
+    borderRadius: 35,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 150,
-    padding: 10,
-    width: "15%",
-    marginVertical: 10,
-    marginBottom: 40,
-  },
-  text: {
-    fontWeight: "bold",
-    fontSize: 30,
-    color: colors.light,
   },
 });

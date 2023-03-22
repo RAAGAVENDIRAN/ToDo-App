@@ -10,8 +10,18 @@ import {
 import { AntDesign } from "@expo/vector-icons";
 import colors from "../config/colors";
 
-export default function InputModel({ navigation, route }) {
-  const [todoInput, setTodoInput] = useState("");
+export default function EditModel({ navigation, route }) {
+  const [editTodo, setEditTodo] = useState("");
+
+  const { id } = route.params;
+  console.log(id);
+
+  //   useEffect(() => {
+  //     if (route.params?.id) {
+  //       const Editid = route.params?.id;
+  //     }
+  //   }, [route.params?.id]);
+
   const istyle = {
     backgroundColor: "#C6CFFF",
   };
@@ -20,23 +30,23 @@ export default function InputModel({ navigation, route }) {
     backgroundColor: "#C6CFFF",
   };
 
-  const getInput = (val) => {
-    setTodoInput(val);
+  const Edit = (val) => {
+    setEditTodo(val);
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.boxContainer}>
         <View style={styles.top}>
-          <Text style={styles.textDesign}>Todos</Text>
-          <AntDesign name="addfolder" size={30} color={colors.dark}></AntDesign>
+          <Text style={styles.textDesign}>Edit Todo</Text>
+          <AntDesign name="edit" size={30} color={colors.dark}></AntDesign>
         </View>
 
         <TextInput
           style={styles.inputStyle}
-          placeholder="Add Todo"
-          onChangeText={getInput}
-          value={todoInput}
+          placeholder="Edit Todo"
+          onChangeText={Edit}
+          value={editTodo}
         ></TextInput>
         <View style={styles.buttonGroup}>
           <TouchableOpacity
@@ -56,7 +66,7 @@ export default function InputModel({ navigation, route }) {
               // route.params.setTodo(todoInput);
               navigation.navigate({
                 name: "TodoList",
-                params: { input: todoInput },
+                params: { EditInput: editTodo, Editid: id },
                 merge: true,
               });
             }}

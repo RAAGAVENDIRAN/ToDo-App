@@ -13,6 +13,7 @@ function Header({ handleClearTodos }) {
         name="delete"
         style={styles.icon}
         size={30}
+        color="black"
         onPress={handleClearTodos}
       />
     </View>
@@ -24,15 +25,15 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     height: 60,
     padding: 10,
-    backgroundColor: "#344fa1",
+    backgroundColor: "#C6CFFF",
     flexDirection: "row",
     justifyContent: "space-between",
   },
   DesignText: {
     fontSize: 30,
-    fontStyle: "italic",
     fontWeight: "bold",
     width: "40%",
+    color: "black",
   },
 });
 export default Header;
