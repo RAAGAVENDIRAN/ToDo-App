@@ -33,10 +33,10 @@ const styles = StyleSheet.create({
     width: "80%",
     paddingHorizontal: 10,
     marginBottom: 20,
-    borderRadius: 20,
+    borderRadius: 35,
     fontSize: 20,
     backgroundColor: "white",
-    height: 40,
+    height: 70,
   },
 });
 

@@ -17,7 +17,7 @@ export default function NavigatorPage() {
           options={{
             headerShown: false,
           }}
-        />
+        ></Stack.Screen>
         <Stack.Screen
           name="InputModel"
           component={InputModel}

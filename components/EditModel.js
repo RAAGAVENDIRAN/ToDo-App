@@ -13,14 +13,7 @@ import colors from "../config/colors";
 export default function EditModel({ navigation, route }) {
   const [editTodo, setEditTodo] = useState("");
 
-  const { id } = route.params;
-  console.log(id);
-
-  //   useEffect(() => {
-  //     if (route.params?.id) {
-  //       const Editid = route.params?.id;
-  //     }
-  //   }, [route.params?.id]);
+  const { id, completed } = route.params;
 
   const istyle = {
     backgroundColor: "#C6CFFF",
@@ -64,9 +57,14 @@ export default function EditModel({ navigation, route }) {
             style={[styles.buttonDesign, mstyle]}
             onPress={() => {
               // route.params.setTodo(todoInput);
+              // console.log(completed);
               navigation.navigate({
                 name: "TodoList",
-                params: { EditInput: editTodo, Editid: id },
+                params: {
+                  EditInput: editTodo,
+                  Editid: id,
+                  completed: completed,
+                },
                 merge: true,
               });
             }}

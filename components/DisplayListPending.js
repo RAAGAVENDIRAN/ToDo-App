@@ -2,14 +2,10 @@ import React, { useState } from "react";
 import { RadioButton } from "react-native-paper";
 import {
   View,
-  FlatList,
   Text,
   StyleSheet,
-  CheckBox,
   Modal,
-  Pressable,
   Dimensions,
-  TouchableOpacity,
   TouchableWithoutFeedback,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -25,40 +21,39 @@ import Animated, {
 import {
   GestureHandlerRootView,
   PanGestureHandler,
-  TapGestureHandler,
+  Swipeable,
 } from "react-native-gesture-handler";
 import { Button } from "@rneui/themed";
+
+const checks = ["unchecked", "checked"];
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const LIST_ITEM_HEIGHT = 90;
 
-function DisplayList({
+function DisplayListPending({
   item,
   pressHandler,
   navigationTo,
-  compToPen,
+  navigation,
   scrollLock,
+  PentoCom,
 }) {
   const [isChecked, setChecked] = useState(item.completed ? 1 : 0);
-  const [modalVisible, setModalVisible] = useState(false);
-  const checks = ["unchecked", "checked"];
+
   const TRANSLATE_X_THRESHOLD = SCREEN_WIDTH * 0.3;
   const translateX = useSharedValue(0);
   const itemHeight = useSharedValue(90);
   const marginVertical = useSharedValue(5);
   const opacity = useSharedValue(1);
 
-  const Checked = () => {
-    compToPen(item.id);
+  const Unchecked = () => {
+    PentoCom(item.id);
   };
 
   const pan = useAnimatedGestureHandler({
-    onStart: (event, context) => {
-      context.value = translateX.value;
-    },
-    onActive: (event, context) => {
-      translateX.value = event.translationX + context.value;
+    onActive: (event) => {
+      translateX.value = event.translationX;
       runOnJS(scrollLock)(false);
     },
     onEnd: () => {
@@ -69,8 +64,7 @@ function DisplayList({
         marginVertical.value = withTiming(0);
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
-            runOnJS(pressHandler)(item.id, "yes");
-
+            runOnJS(pressHandler)(item.id, "no");
             runOnJS(scrollLock)(true);
           }
         });
@@ -105,32 +99,9 @@ function DisplayList({
   });
   return (
     <>
-      {/* <View style={styles.centeredView}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-            setModalVisible(!modalVisible);
-          }}
-        >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>Hello World!</Text>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => setModalVisible(!modalVisible)}
-              >
-                <Text style={styles.textStyle}>Hide Modal</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
-      </View> */}
       <TouchableWithoutFeedback
         onPress={() => {
-          navigationTo(item.id, "yes");
+          navigationTo(item.id, "no");
         }}
       >
         <GestureHandlerRootView>
@@ -142,9 +113,7 @@ function DisplayList({
                 color={"red"}
               ></FontAwesome5>
             </Animated.View>
-
             <PanGestureHandler
-              on
               activateAfterLongPress={100}
               onGestureEvent={pan}
             >
@@ -155,7 +124,7 @@ function DisplayList({
                   onPress={() => {
                     {
                       setChecked(isChecked ^ 1);
-                      Checked();
+                      Unchecked();
                     }
                   }}
                 />
@@ -204,6 +173,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: "90%",
     alignSelf: "center",
+    // elevation: 20,
+    // shadowOpacity: 0.08,
+
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 10,
+    // },
   },
   date: {
     marginTop: 10,
@@ -242,50 +218,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: "10%",
   },
-
-  //imported
-
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: "#F194FF",
-  },
-  buttonClose: {
-    backgroundColor: "#2196F3",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
-  },
 });
 
-export default DisplayList;
+export default DisplayListPending;

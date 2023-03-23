@@ -1,60 +1,107 @@
 import React, { useState, useEffect } from "react";
-
-import {
-  Platform,
-  StyleSheet,
-  View,
-  Text,
-  FlatList,
-  TextInput,
-  Alert,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { StyleSheet, View, Alert } from "react-native";
 
 import axios from "axios";
 import SearchToDo from "../components/SearchToDo";
-import DisplayList from "../components/DisplayList";
-import AppButton from "../components/AppButton";
+import Listing from "../components/Listing";
 import Header from "../components/Header";
 
 import Bottom from "../components/Bottom";
+import ListingPending from "../components/ListingPending";
 
+const Tab = createMaterialTopTabNavigator();
+
+let arr = [];
 function ToDoList({ navigation, route }) {
   const [todos, setTodos] = useState([]);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
+  const [completedTodo, setCompletedTodo] = useState([]);
+  const [pendingTodo, setPendingTodo] = useState([]);
 
   //using useEffect to fetch Data from jsonHolder Api.
   useEffect(() => {
     async function getToDo() {
       const result = await axios("https://jsonplaceholder.typicode.com/todos");
 
-      let newtodos = result.data.filter((item) => {
+      result.data.slice(0, 29).filter((item) => {
         item.date = new Date(Date.now() * Math.random() * 0.99)
           .toString()
           .slice(0, 24);
-        return item;
+        if (item.completed) completedTodo.push(item);
+        else pendingTodo.push(item);
       });
 
-      setTodos(newtodos.slice(0, 39));
-      setFilteredData(newtodos.slice(0, 39));
+      setCompletedTodo([...completedTodo]);
+      setPendingTodo([...pendingTodo]);
     }
 
     getToDo();
   }, []);
 
-  //delete todo
-  const pressHandler = (id) => {
-    let newtodos = todos.filter((todos) => {
-      if (todos.id != id) return todos;
+  //CompletedToPending
+  const compToPen = (id) => {
+    let takeData;
+    let newcom = completedTodo.filter((item) => {
+      if (item.id === id) {
+        takeData = item;
+        return;
+      }
+      return item;
     });
-
-    setTodos(newtodos);
-    setFilteredData(newtodos);
+    setCompletedTodo(newcom);
+    takeData.completed = false;
+    setPendingTodo([takeData, ...pendingTodo]);
   };
 
-  //navigte
+  //PendingToComplete
+  const PentoCom = (id) => {
+    let takeData;
+    let newcom = pendingTodo.filter((item) => {
+      if (item.id === id) {
+        takeData = item;
+        return;
+      }
+      return item;
+    });
+    setPendingTodo(newcom);
+    takeData.completed = true;
+    setCompletedTodo([takeData, ...completedTodo]);
+  };
+
+  // Searching function
+
+  const Searching = (newtext) => {
+    setSearch(newtext);
+    searchFilterFunction(arr, newtext);
+  };
+
+  // setting the current tab array
+  const setTab = (tab) => {
+    if (tab == 1) {
+      arr = completedTodo;
+    } else {
+      arr = pendingTodo;
+    }
+  };
+
+  //delete todo
+  const pressHandler = (id, completed) => {
+    if (completed === "yes") {
+      let newtodos = completedTodo.filter((todos) => {
+        if (todos.id != id) return todos;
+      });
+      setCompletedTodo(newtodos);
+    } else {
+      let newtodos = pendingTodo.filter((todos) => {
+        if (todos.id != id) return todos;
+      });
+      setPendingTodo(newtodos);
+    }
+  };
+
+  //navigte to add function
   const navigated = () => {
     navigation.navigate("InputModel");
   };
@@ -63,26 +110,50 @@ function ToDoList({ navigation, route }) {
   useEffect(() => {
     console.log("check time");
     if (route.params?.input) submitHandler(route.params?.input);
-    if (route.params?.EditInput && route.params?.Editid)
-      EditHandler(route.params?.EditInput, route.params?.Editid);
-  }, [route.params?.input, route.params?.EditInput, route.params?.Editid]);
+    if (route.params?.EditInput)
+      EditHandler(
+        route.params?.EditInput,
+        route.params?.Editid,
+        route.params?.completed
+      );
+  }, [
+    route.params?.input,
+    route.params?.EditInput,
+    route.params?.Editid,
+    route.params?.completed,
+  ]);
 
   //clearToDo
   const handleClearTodos = () => {
-    Alert.alert("OOPS!", "Your Todos will be deleted", [
-      {
-        text: "Confirm",
-        onPress: () => {
-          setTodos([]);
-          setFilteredData([]);
+    if (arr.length > 0) {
+      let bool = arr[0].completed;
+      Alert.alert("OOPS!", "Your Todos will be deleted", [
+        {
+          text: "Confirm",
+          onPress: () => {
+            arr = [];
+            if (bool === true) setCompletedTodo([]);
+            else setPendingTodo([]);
+          },
         },
-      },
-      {
-        text: "Cancel",
+        {
+          text: "Cancel",
 
-        style: "cancel",
-      },
-    ]);
+          style: "cancel",
+        },
+      ]);
+    } else {
+      Alert.alert("OOPS!", "EMPTY", [
+        {
+          text: "Confirm",
+        },
+        {
+          text: "Cancel",
+
+          style: "cancel",
+        },
+      ]);
+    }
   };
 
   //submitting
@@ -96,11 +167,10 @@ function ToDoList({ navigation, route }) {
           completed: false,
           date: new Date(Date.now()).toString().slice(0, 24),
         },
-        ...todos,
+        ...pendingTodo,
       ];
 
-      setTodos(newtodos);
-      setFilteredData(newtodos);
+      setPendingTodo(newtodos);
     } else {
       Alert.alert("OOPS!", "Todos must be over 3 chars long", [
         { text: "Understood" },
@@ -109,37 +179,65 @@ function ToDoList({ navigation, route }) {
   };
 
   // Editing
-  const EditHandler = (text, id) => {
-    const editedData = filteredData.map((item) => {
-      if (item.id == id) {
-        item.title = text;
+  const EditHandler = (text, id, completed) => {
+    if (completed === "yes") {
+      // console.log("yes");
+      const editedData = completedTodo.map((item) => {
+        if (item.id == id) {
+          item.title = text;
+          return item;
+        }
         return item;
-      }
-      return item;
-    });
-    setFilteredData(editedData);
-    setTodos(editedData);
+      });
+
+      setCompletedTodo(editedData);
+    } else {
+      const editedData = pendingTodo.map((item) => {
+        // console.log("no");
+        if (item.id == id) {
+          item.title = text;
+          return item;
+        }
+        return item;
+      });
+
+      setPendingTodo(editedData);
+    }
   };
 
   //search Filter Function
-  const searchFilterFunction = (newtext) => {
+  const searchFilterFunction = (array, newtext) => {
+    let bool = array[0].completed;
     if (newtext) {
-      const newData = todos.filter((item) => {
+      const newData = array.filter((item) => {
         const itemData = item.title
           ? item.title.toUpperCase()
           : "".toUpperCase();
         const textData = newtext.toUpperCase();
         return itemData.indexOf(textData) > -1;
       });
-      setFilteredData(newData);
+      if (bool) {
+        setCompletedTodo(newData);
+      } else {
+        setPendingTodo(newData);
+      }
     } else {
-      setFilteredData(todos);
+      if (bool) {
+        setCompletedTodo(completedTodo);
+      } else {
+        setPendingTodo(pendingTodo);
+      }
     }
   };
 
-  const Searching = (newtext) => {
-    setSearch(newtext);
-    searchFilterFunction(newtext);
+  //navigate to EditModel
+  const navigationToModel = (id, completed) => {
+    console.log(id, completed);
+    navigation.navigate({
+      name: "EditModel",
+      params: { id: id, completed: completed },
+      merge: true,
+    });
   };
 
   return (
@@ -150,25 +248,55 @@ function ToDoList({ navigation, route }) {
         placeholder={"Search Here"}
         onChangeText={Searching}
       />
+      <Tab.Navigator
+        screenOptions={{
+          swipeEnabled: false,
 
-      <FlatList
-        data={filteredData}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <DisplayList
-            data={filteredData}
-            item={item}
-            navigationTo={() => {
-              navigation.navigate({
-                name: "EditModel",
-                params: { id: item.id },
-                merge: true,
-              });
-            }}
-            pressHandler={pressHandler}
-          />
-        )}
-      />
+          tabBarStyle: { backgroundColor: "#F3F8FF" },
+        }}
+      >
+        <Tab.Screen
+          listeners={({ navigation, route }) => ({
+            focus: (e) => {
+              setTab(1);
+            },
+            blur: (e) => {
+              setTab(0);
+            },
+          })}
+          name="DisplayList"
+          children={() => {
+            return (
+              <Listing
+                compToPen={(id) => {
+                  compToPen(id);
+                }}
+                filteredData={completedTodo}
+                pressHandler={(id, completed) => pressHandler(id, completed)}
+                navigationFunction={(id, completed) =>
+                  navigationToModel(id, completed)
+                }
+              />
+            );
+          }}
+        />
+        <Tab.Screen
+          name="DisplayListPending"
+          children={() => {
+            return (
+              <ListingPending
+                filteredData={pendingTodo}
+                PentoCom={(id) => PentoCom(id)}
+                pressHandler={(id, completed) => pressHandler(id, completed)}
+                navigationFunction={(id, completed) =>
+                  navigationToModel(id, completed)
+                }
+              />
+            );
+          }}
+        />
+      </Tab.Navigator>
+
       <Bottom navigated={navigated} />
     </View>
   );
