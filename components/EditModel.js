@@ -45,9 +45,7 @@ export default function EditModel({ navigation, route }) {
           <TouchableOpacity
             style={[styles.buttonDesign, istyle]}
             onPress={() => {
-              navigation.navigate({
-                name: "TodoList",
-              });
+              navigation.goBack();
             }}
           >
             <Text style={styles.closeText}> X </Text>

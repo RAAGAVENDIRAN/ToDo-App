@@ -5,13 +5,33 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Platform,
 } from "react-native";
+
+import { DateTimePicker } from "@react-native-community/datetimepicker";
 
 import { AntDesign } from "@expo/vector-icons";
 import colors from "../config/colors";
+import { Calendar } from "react-native-feather";
 
 export default function InputModel({ navigation, route }) {
   const [todoInput, setTodoInput] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState("date");
+  const [show, setShow] = useState(false);
+  const [text, setText] = useState("Empty");
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === "android");
+    setDate(currentDate);
+  };
+
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
   const istyle = {
     backgroundColor: "#C6CFFF",
   };
@@ -31,20 +51,22 @@ export default function InputModel({ navigation, route }) {
           <Text style={styles.textDesign}>Todos</Text>
           <AntDesign name="addfolder" size={30} color={colors.dark}></AntDesign>
         </View>
-
-        <TextInput
-          style={styles.inputStyle}
-          placeholder="Add Todo"
-          onChangeText={getInput}
-          value={todoInput}
-        ></TextInput>
+        <View style={styles.Wrapper}>
+          <TextInput
+            style={styles.inputStyle}
+            placeholder="Add Todo"
+            onChangeText={getInput}
+            value={todoInput}
+            autoFocus={true}
+          />
+          <AntDesign name="calendar" size={30} />
+          <AntDesign name="clockcircle" size={30} />
+        </View>
         <View style={styles.buttonGroup}>
           <TouchableOpacity
             style={[styles.buttonDesign, istyle]}
             onPress={() => {
-              navigation.navigate({
-                name: "TodoList",
-              });
+              navigation.goBack();
             }}
           >
             <Text style={styles.closeText}> X </Text>
@@ -87,6 +109,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     marginHorizontal: 40,
   },
+  Wrapper: {
+    justifyContent: "flex-end",
+    alignItems: "center",
+    flexDirection: "row",
+  },
   buttonGroup: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -101,7 +128,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#C6CFFF",
   },
   inputStyle: {
-    width: 300,
+    width: 250,
     height: 50,
     backgroundColor: "#C6CFFF",
     padding: 10,

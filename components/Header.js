@@ -4,10 +4,10 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Button } from "react-native";
 
-function Header({ handleClearTodos }) {
+function Header({ handleClearTodos, username }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.DesignText}>Todos</Text>
+      <Text style={styles.DesignText}>Hello,{username}</Text>
 
       <MaterialIcons
         name="delete"
@@ -30,9 +30,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   DesignText: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: "bold",
-    width: "40%",
+    width: "80%",
     color: "black",
   },
 });
