@@ -7,13 +7,17 @@ import {
   TouchableOpacity,
 } from "react-native";
 
+import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
+
+const BottomTab = createMaterialBottomTabNavigator();
+
 import { AntDesign } from "@expo/vector-icons";
 import colors from "../config/colors";
 
 export default function EditModel({ navigation, route }) {
   const [editTodo, setEditTodo] = useState("");
 
-  const { id, completed } = route.params;
+  const { id, completed, curDate } = route.params;
 
   const istyle = {
     backgroundColor: "#C6CFFF",
@@ -30,6 +34,7 @@ export default function EditModel({ navigation, route }) {
   return (
     <View style={styles.container}>
       <View style={styles.boxContainer}>
+        <Text style={{ fontWeight: "bold" }}>Created on: {curDate}</Text>
         <View style={styles.top}>
           <Text style={styles.textDesign}>Edit Todo</Text>
           <AntDesign name="edit" size={30} color={colors.dark}></AntDesign>

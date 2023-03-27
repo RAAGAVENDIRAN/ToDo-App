@@ -68,7 +68,7 @@ function ToDoList({ navigation, route }) {
       let get = await AsyncStorage.getItem(`@todo ${userId}`);
       let takeData;
       let result = JSON.parse(get);
-      console.log(result);
+
       let newData = result.userId.completedTodo.filter((item) => {
         if (item.id === id) {
           takeData = item;
@@ -95,7 +95,7 @@ function ToDoList({ navigation, route }) {
       let get = await AsyncStorage.getItem(`@todo ${userId}`);
       let takeData;
       let result = JSON.parse(get);
-      console.log(result);
+
       let newData = result.userId.pendingTodo.filter((item) => {
         if (item.id === id) {
           takeData = item;
@@ -120,7 +120,7 @@ function ToDoList({ navigation, route }) {
 
   const Searching = (newtext) => {
     setSearch(newtext);
-    searchFilterFunction(arr, newtext);
+    if (arr.length) searchFilterFunction(arr, newtext);
   };
 
   // setting the current tab array
@@ -167,7 +167,12 @@ function ToDoList({ navigation, route }) {
 
   //to set the input
   useEffect(() => {
-    if (route.params?.input) submitHandlerAsync(route.params?.input);
+    if (route.params?.input && route.params?.times)
+      submitHandlerAsync(
+        route.params?.input,
+        route.params?.times,
+        route.params?.curDate
+      );
     if (route.params?.EditInput)
       EditHandlerAsync(
         route.params?.EditInput,
@@ -239,7 +244,7 @@ function ToDoList({ navigation, route }) {
 
   //submitting
 
-  const submitHandlerAsync = async (todoInputValue) => {
+  const submitHandlerAsync = async (todoInputValue, times, curDate) => {
     if (todoInputValue.trim() === "") return;
     if (todoInputValue.length > 3) {
       let newtodos = [
@@ -248,7 +253,8 @@ function ToDoList({ navigation, route }) {
           id: Math.random(),
           title: todoInputValue.trim(),
           completed: false,
-          date: new Date(Date.now()).toString().slice(0, 24),
+          date: times,
+          createdDate: route.params?.curDate,
         },
         ...pendingTodo,
       ];
@@ -303,7 +309,6 @@ function ToDoList({ navigation, route }) {
 
   //search Filter Function
   const searchFilterFunction = (array, newtext) => {
-    console.log(newtext);
     let bool = array[0].completed;
     if (newtext) {
       let newData = array.filter((item) => {
@@ -326,10 +331,10 @@ function ToDoList({ navigation, route }) {
   };
 
   //navigate to EditModel
-  const navigationToModel = (id, completed) => {
+  const navigationToModel = (id, completed, createdDate) => {
     navigation.navigate({
       name: "EditModel",
-      params: { id: id, completed: completed },
+      params: { id: id, completed: completed, curDate: createdDate },
       merge: true,
     });
   };
@@ -367,11 +372,11 @@ function ToDoList({ navigation, route }) {
                   compToPen(id);
                 }}
                 filteredData={completedTodo}
-                pressHandlerAsync={(id, completed) =>
-                  pressHandler(id, completed)
+                pressHandler={(id, completed) =>
+                  pressHandlerAsync(id, completed)
                 }
-                navigationFunction={(id, completed) =>
-                  navigationToModel(id, completed)
+                navigationFunction={(id, completed, createDate) =>
+                  navigationToModel(id, completed, createDate)
                 }
               />
             );
@@ -389,11 +394,11 @@ function ToDoList({ navigation, route }) {
               <ListingPending
                 filteredData={pendingTodo}
                 PentoCom={(id) => PentoCom(id)}
-                pressHandlerAsync={(id, completed) =>
-                  pressHandler(id, completed)
+                pressHandler={(id, completed) =>
+                  pressHandlerAsync(id, completed)
                 }
-                navigationFunction={(id, completed) =>
-                  navigationToModel(id, completed)
+                navigationFunction={(id, completed, createDate) =>
+                  navigationToModel(id, completed, createDate)
                 }
               />
             );

@@ -103,11 +103,12 @@ function DisplayList({
       opacity: opacity.value,
     };
   });
+
   return (
     <>
       <TouchableWithoutFeedback
         onPress={() => {
-          navigationTo(item.id, "yes");
+          navigationTo(item.id, "yes", item.createdDate);
         }}
       >
         <GestureHandlerRootView>

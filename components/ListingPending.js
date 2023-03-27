@@ -28,7 +28,9 @@ export default function ListingPending({
             PentoCom={(id) => {
               PentoCom(id);
             }}
-            navigationTo={(id, completed) => navigationFunction(id, completed)}
+            navigationTo={(id, completed, createdDate) =>
+              navigationFunction(id, completed, createdDate)
+            }
             pressHandler={(id, completed) => pressHandler(id, completed)}
           />
         )}

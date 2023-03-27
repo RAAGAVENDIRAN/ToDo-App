@@ -6,8 +6,10 @@ import InputModel from "../components/InputModel";
 import EditModel from "../components/EditModel";
 import Login from "./Login";
 import SignUp from "./SignUp";
+import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 
 const Stack = createNativeStackNavigator();
+const BottomTab = createMaterialBottomTabNavigator();
 
 export default function NavigatorPage() {
   return (

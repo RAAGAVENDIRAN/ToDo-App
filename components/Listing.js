@@ -6,6 +6,7 @@ export default function Listing({
   filteredData,
   pressHandler,
   navigationFunction,
+
   compToPen,
 }) {
   const [scrollLock, setScrollLock] = useState(true);
@@ -25,7 +26,9 @@ export default function Listing({
             scrollLock={(scrollLock) => {
               setScrollLock(scrollLock);
             }}
-            navigationTo={(id, completed) => navigationFunction(id, completed)}
+            navigationTo={(id, completed, createdDate) =>
+              navigationFunction(id, completed, createdDate)
+            }
             pressHandler={(id, completed) => pressHandler(id, completed)}
           />
         )}

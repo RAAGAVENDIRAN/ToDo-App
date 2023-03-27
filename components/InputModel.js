@@ -6,13 +6,13 @@ import {
   TextInput,
   TouchableOpacity,
   Platform,
+  Alert,
 } from "react-native";
 
-import { DateTimePicker } from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { AntDesign } from "@expo/vector-icons";
 import colors from "../config/colors";
-import { Calendar } from "react-native-feather";
 
 export default function InputModel({ navigation, route }) {
   const [todoInput, setTodoInput] = useState("");
@@ -20,11 +20,36 @@ export default function InputModel({ navigation, route }) {
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
   const [text, setText] = useState("Empty");
+  const [fDate, setfDate] = useState("");
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
-    setShow(Platform.OS === "android");
+    setShow(!show);
     setDate(currentDate);
+
+    let tempDate = new Date(currentDate);
+
+    let newDate =
+      tempDate.toString().slice(0, 16) +
+      tempDate.getHours() +
+      ":" +
+      +tempDate.getMinutes() +
+      ":" +
+      tempDate.getSeconds();
+    // tempDate.getDate() +
+    // "/" +
+    // (tempDate.getMonth() + 1) +
+    // "/" +
+    // tempDate.getFullYear();
+    // let fTime =
+    //   "Hours: " +
+    //   tempDate.getHours() +
+    //   ":" +
+    //   +tempDate.getMinutes() +
+    //   ":" +
+    //   tempDate.getSeconds();
+    setText(newDate);
+    setfDate(newDate);
   };
 
   const showMode = (currentMode) => {
@@ -49,7 +74,7 @@ export default function InputModel({ navigation, route }) {
       <View style={styles.boxContainer}>
         <View style={styles.top}>
           <Text style={styles.textDesign}>Todos</Text>
-          <AntDesign name="addfolder" size={30} color={colors.dark}></AntDesign>
+          <AntDesign name="addfolder" size={30} color={colors.dark} />
         </View>
         <View style={styles.Wrapper}>
           <TextInput
@@ -59,9 +84,29 @@ export default function InputModel({ navigation, route }) {
             value={todoInput}
             autoFocus={true}
           />
-          <AntDesign name="calendar" size={30} />
-          <AntDesign name="clockcircle" size={30} />
+          <AntDesign
+            name="calendar"
+            size={30}
+            onPress={() => showMode("date")}
+          />
+          <AntDesign
+            name="clockcircle"
+            size={30}
+            onPress={() => showMode("time")}
+          />
         </View>
+
+        {show && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode={mode}
+            display="dafault"
+            onChange={onChange}
+            minimumDate={new Date()}
+          />
+        )}
+        <Text>{text}</Text>
         <View style={styles.buttonGroup}>
           <TouchableOpacity
             style={[styles.buttonDesign, istyle]}
@@ -75,12 +120,20 @@ export default function InputModel({ navigation, route }) {
           <TouchableOpacity
             style={[styles.buttonDesign, mstyle]}
             onPress={() => {
-              // route.params.setTodo(todoInput);
-              navigation.navigate({
-                name: "TodoList",
-                params: { input: todoInput },
-                merge: true,
-              });
+              if (fDate != "") {
+                // route.params.setTodo(todoInput);
+                navigation.navigate({
+                  name: "TodoList",
+                  params: {
+                    input: todoInput,
+                    times: fDate,
+                    curDate: new Date().toString().slice(0, 24),
+                  },
+                  merge: true,
+                });
+              } else {
+                Alert.alert("Please select the data and time");
+              }
             }}
           >
             <Text style={styles.crctText}>✓</Text>

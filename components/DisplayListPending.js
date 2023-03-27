@@ -64,7 +64,7 @@ function DisplayListPending({
         marginVertical.value = withTiming(0);
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
-            runOnJS(pressHandler)(item.id, "no");
+            runOnJS(pressHandler)(item.id, "no", item.createdDate);
             runOnJS(scrollLock)(true);
           }
         });
@@ -97,11 +97,12 @@ function DisplayListPending({
       opacity: opacity.value,
     };
   });
+
   return (
     <>
       <TouchableWithoutFeedback
         onPress={() => {
-          navigationTo(item.id, "no");
+          navigationTo(item.id, "no", item.createdDate);
         }}
       >
         <GestureHandlerRootView>
