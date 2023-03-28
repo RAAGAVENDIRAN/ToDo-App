@@ -36,18 +36,7 @@ export default function InputModel({ navigation, route }) {
       +tempDate.getMinutes() +
       ":" +
       tempDate.getSeconds();
-    // tempDate.getDate() +
-    // "/" +
-    // (tempDate.getMonth() + 1) +
-    // "/" +
-    // tempDate.getFullYear();
-    // let fTime =
-    //   "Hours: " +
-    //   tempDate.getHours() +
-    //   ":" +
-    //   +tempDate.getMinutes() +
-    //   ":" +
-    //   tempDate.getSeconds();
+
     setText(newDate);
     setfDate(newDate);
   };

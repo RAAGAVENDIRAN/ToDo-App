@@ -1,13 +1,22 @@
 import React from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { Button } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
 
 function Header({ handleClearTodos, username }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.DesignText}>Hello,{username}</Text>
+      <Text style={styles.DesignText}>Hello {username}</Text>
+      {/* <AntDesign
+        name="profile"
+        size={30}
+        onPress={() => {
+          navigation.navigate({
+            name: "Profile",
+            params: { username: username, comLen: comLen, penLen: penLen },
+          });
+        }}
+      /> */}
 
       <MaterialIcons
         name="delete"

@@ -33,11 +33,11 @@ const LIST_ITEM_HEIGHT = 90;
 
 function DisplayListPending({
   item,
-  pressHandler,
+  pressHandlerAsync,
   navigationTo,
   navigation,
   scrollLock,
-  PentoCom,
+  PenToComAsync,
 }) {
   const [isChecked, setChecked] = useState(item.completed ? 1 : 0);
 
@@ -48,7 +48,7 @@ function DisplayListPending({
   const opacity = useSharedValue(1);
 
   const Unchecked = () => {
-    PentoCom(item.id);
+    PenToComAsync(item.id);
   };
 
   const pan = useAnimatedGestureHandler({
@@ -64,7 +64,7 @@ function DisplayListPending({
         marginVertical.value = withTiming(0);
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
-            runOnJS(pressHandler)(item.id, "no", item.createdDate);
+            runOnJS(pressHandlerAsync)(item.id, "no", item.createDate);
             runOnJS(scrollLock)(true);
           }
         });

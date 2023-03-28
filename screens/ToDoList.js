@@ -4,12 +4,11 @@ import { StyleSheet, View, Alert } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import axios from "axios";
-import SearchToDo from "../components/SearchToDo";
-import Listing from "../components/Listing";
 import Header from "../components/Header";
+import SearchToDo from "../components/SearchToDo";
 
 import Bottom from "../components/Bottom";
+import Listing from "../components/Listing";
 import ListingPending from "../components/ListingPending";
 
 const Tab = createMaterialTopTabNavigator();
@@ -43,7 +42,10 @@ function ToDoList({ navigation, route }) {
           tempPendingTodo = value.userId.pendingTodo;
 
         setCompletedTodo(tempCompletedTodo);
+        arr = tempCompletedTodo;
+        // setcntCom(tempCompletedTodo.length);
         setPendingTodo(tempPendingTodo);
+        // setcntPen(tempPendingTodo.length);
       } catch (e) {
         // error reading value
       }
@@ -53,67 +55,58 @@ function ToDoList({ navigation, route }) {
 
   //store data to async storage
 
-  const storeData = async (value, id) => {
+  const storeData = async (value) => {
     try {
       const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem(`@todo ${userId}`, jsonValue);
+      let value2 = await AsyncStorage.setItem(`@todo ${userId}`, jsonValue);
     } catch (e) {
       // saving error
+      console.log("Error");
     }
   };
 
   //CompletedToPending
-  const compToPen = (id) => {
-    const ComToPenAsync = async (id) => {
-      let get = await AsyncStorage.getItem(`@todo ${userId}`);
-      let takeData;
-      let result = JSON.parse(get);
 
-      let newData = result.userId.completedTodo.filter((item) => {
-        if (item.id === id) {
-          takeData = item;
-          return;
-        }
-        return item;
-      });
-      takeData.completed = false;
-      setCompletedTodo(newData);
-      setPendingTodo([...pendingTodo, takeData]);
-      storeData({
-        userId: {
-          completedTodo: newData,
-          pendingTodo: [...pendingTodo, takeData],
-        },
-      });
-    };
-    ComToPenAsync(id);
+  const ComToPenAsync = async (id) => {
+    let newData = completedTodo.filter((item) => {
+      if (item.id === id) {
+        takeData = item;
+        return;
+      }
+      return item;
+    });
+
+    takeData.completed = false;
+    setCompletedTodo([...newData]);
+    setPendingTodo([...pendingTodo, takeData]);
+    storeData({
+      userId: {
+        completedTodo: newData,
+        pendingTodo: [...pendingTodo, takeData],
+      },
+    });
   };
 
   //PendingToComplete
-  const PentoCom = (id) => {
-    const PenToComAsync = async (id) => {
-      let get = await AsyncStorage.getItem(`@todo ${userId}`);
-      let takeData;
-      let result = JSON.parse(get);
 
-      let newData = result.userId.pendingTodo.filter((item) => {
-        if (item.id === id) {
-          takeData = item;
-          return;
-        }
-        return item;
-      });
-      takeData.completed = true;
-      setPendingTodo(newData);
-      setCompletedTodo([...completedTodo, takeData]);
-      storeData({
-        userId: {
-          completedTodo: [...completedTodo, takeData],
-          pendingTodo: newData,
-        },
-      });
-    };
-    PenToComAsync(id);
+  const PenToComAsync = async (id) => {
+    let newData = pendingTodo.filter((item) => {
+      if (item.id === id) {
+        takeData = item;
+        return;
+      }
+      return item;
+    });
+
+    takeData.completed = true;
+    setPendingTodo([...newData]);
+    setCompletedTodo([...completedTodo, takeData]);
+    storeData({
+      userId: {
+        completedTodo: [...completedTodo, takeData],
+        pendingTodo: newData,
+      },
+    });
   };
 
   // Searching function
@@ -167,79 +160,76 @@ function ToDoList({ navigation, route }) {
 
   //to set the input
   useEffect(() => {
-    if (route.params?.input && route.params?.times)
+    if (route.params?.input && route.params?.times && route.params?.curDate) {
       submitHandlerAsync(
         route.params?.input,
         route.params?.times,
         route.params?.curDate
       );
-    if (route.params?.EditInput)
+    }
+    if (route.params?.EditInput) {
       EditHandlerAsync(
         route.params?.EditInput,
         route.params?.Editid,
         route.params?.completed
       );
+    }
   }, [
     route.params?.input,
     route.params?.EditInput,
     route.params?.Editid,
     route.params?.completed,
+    route.params?.curDate,
+    route.params?.times,
   ]);
 
   //clearToDo
-  const handleClearTodos = () => {
-    const handleClearAsync = async () => {
-      const result = await AsyncStorage.getItem(`@todo ${userId}`);
-      let todo;
-      if (result != null) {
-        todo = JSON.parse(result);
-      }
-      if (arr.length > 0) {
-        let bool = arr[0].completed;
-        Alert.alert("OOPS!", "Your Todos will be deleted", [
-          {
-            text: "Confirm",
-            onPress: () => {
-              arr = [];
-              if (bool === true) {
-                setCompletedTodo([]);
-                storeData({
-                  userId: {
-                    completedTodo: [],
-                    pendingTodo: pendingTodo,
-                  },
-                });
-              } else {
-                setPendingTodo([]);
-                storeData({
-                  userId: {
-                    completedTodo: completedTodo,
-                    pendingTodo: [],
-                  },
-                });
-              }
-            },
-          },
-          {
-            text: "Cancel",
 
-            style: "cancel",
+  const handleClearAsync = async () => {
+    if (arr.length > 0) {
+      let bool = arr[0].completed;
+      Alert.alert("OOPS!", "Your Todos will be deleted", [
+        {
+          text: "Confirm",
+          onPress: () => {
+            arr = [];
+            if (bool === true) {
+              setCompletedTodo([]);
+              storeData({
+                userId: {
+                  completedTodo: [],
+                  pendingTodo: pendingTodo,
+                },
+              });
+            } else {
+              setPendingTodo([]);
+              storeData({
+                userId: {
+                  completedTodo: completedTodo,
+                  pendingTodo: [],
+                },
+              });
+            }
           },
-        ]);
-      } else {
-        Alert.alert("OOPS!", "EMPTY", [
-          {
-            text: "Confirm",
-          },
-          {
-            text: "Cancel",
+        },
+        {
+          text: "Cancel",
 
-            style: "cancel",
-          },
-        ]);
-      }
-    };
-    handleClearAsync();
+          style: "cancel",
+        },
+      ]);
+    } else {
+      Alert.alert("OOPS!", "EMPTY", [
+        {
+          text: "Confirm",
+        },
+        {
+          text: "Cancel",
+
+          style: "cancel",
+        },
+      ]);
+    }
   };
 
   //submitting
@@ -254,7 +244,7 @@ function ToDoList({ navigation, route }) {
           title: todoInputValue.trim(),
           completed: false,
           date: times,
-          createdDate: route.params?.curDate,
+          createDate: curDate,
         },
         ...pendingTodo,
       ];
@@ -310,38 +300,47 @@ function ToDoList({ navigation, route }) {
   //search Filter Function
   const searchFilterFunction = (array, newtext) => {
     let bool = array[0].completed;
-    if (newtext) {
-      let newData = array.filter((item) => {
-        let itemData = item.title ? item.title.toUpperCase() : "".toUpperCase();
-        let textData = newtext.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-      if (bool) {
-        setCompletedTodo(newData);
-      } else {
-        setPendingTodo(newData);
-      }
+    // if (newtext) {
+    let newData = array.filter((item) => {
+      let itemData = item.title ? item.title.toUpperCase() : "".toUpperCase();
+      let textData = newtext.toUpperCase();
+      return itemData.indexOf(textData) > -1;
+    });
+
+    if (bool) {
+      setCompletedTodo(newData);
+      // setTab(0);
     } else {
-      if (bool) {
-        setCompletedTodo(array);
-      } else {
-        setPendingTodo(array);
-      }
+      setPendingTodo(newData);
+      // setTab(1);
     }
+    // } else {
+    //   if (bool) {
+    //     setCompletedTodo(array);
+    //   } else {
+    //     setPendingTodo(array);
+    //   }
+    // }
   };
 
   //navigate to EditModel
-  const navigationToModel = (id, completed, createdDate) => {
+  const navigationToModel = (id, completed, createDate) => {
     navigation.navigate({
       name: "EditModel",
-      params: { id: id, completed: completed, curDate: createdDate },
+      params: { id: id, completed: completed, curDate: createDate },
       merge: true,
     });
   };
 
   return (
     <View style={styles.container}>
-      <Header handleClearTodos={handleClearTodos} username={username} />
+      <Header
+        // navigation={navigation}
+        handleClearTodos={handleClearAsync}
+        username={username}
+        // comLen={completedTodo.length}
+        // penLen={pendingTodo.length}
+      />
       <SearchToDo
         value={search}
         placeholder={"Search Here"}
@@ -360,19 +359,19 @@ function ToDoList({ navigation, route }) {
               setTab(1);
             },
             blur: (e) => {
-              setTab(0);
-              Searching("");
+              // setTab(0);
+              if (search !== "") Searching("");
             },
           })}
           name="DisplayList"
           children={() => {
             return (
               <Listing
-                compToPen={(id) => {
-                  compToPen(id);
+                ComToPenAsync={(id) => {
+                  ComToPenAsync(id);
                 }}
                 filteredData={completedTodo}
-                pressHandler={(id, completed) =>
+                pressHandlerAsync={(id, completed) =>
                   pressHandlerAsync(id, completed)
                 }
                 navigationFunction={(id, completed, createDate) =>
@@ -384,8 +383,11 @@ function ToDoList({ navigation, route }) {
         />
         <Tab.Screen
           listeners={({ navigation, route }) => ({
+            focus: (e) => {
+              setTab(0);
+            },
             blur: (e) => {
-              Searching("");
+              if (search !== "") Searching("");
             },
           })}
           name="DisplayListPending"
@@ -393,8 +395,8 @@ function ToDoList({ navigation, route }) {
             return (
               <ListingPending
                 filteredData={pendingTodo}
-                PentoCom={(id) => PentoCom(id)}
-                pressHandler={(id, completed) =>
+                PenToComAsync={(id) => PenToComAsync(id)}
+                pressHandlerAsync={(id, completed) =>
                   pressHandlerAsync(id, completed)
                 }
                 navigationFunction={(id, completed, createDate) =>
@@ -406,7 +408,7 @@ function ToDoList({ navigation, route }) {
         />
       </Tab.Navigator>
 
-      <Bottom navigated={navigated} />
+      {search === "" ? <Bottom navigated={navigated} /> : null}
     </View>
   );
 }

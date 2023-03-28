@@ -9,8 +9,6 @@ import {
 
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 
-const BottomTab = createMaterialBottomTabNavigator();
-
 import { AntDesign } from "@expo/vector-icons";
 import colors from "../config/colors";
 

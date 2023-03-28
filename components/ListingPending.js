@@ -6,9 +6,9 @@ import DisplayListPending from "./DisplayListPending";
 
 export default function ListingPending({
   filteredData,
-  pressHandler,
+  pressHandlerAsync,
   navigationFunction,
-  PentoCom,
+  PenToComAsync,
 }) {
   const [scrollLock, setScrollLock] = useState(true);
   return (
@@ -25,13 +25,15 @@ export default function ListingPending({
             scrollLock={(scrollLock) => {
               setScrollLock(scrollLock);
             }}
-            PentoCom={(id) => {
-              PentoCom(id);
+            PenToComAsync={(id) => {
+              PenToComAsync(id);
             }}
             navigationTo={(id, completed, createdDate) =>
               navigationFunction(id, completed, createdDate)
             }
-            pressHandler={(id, completed) => pressHandler(id, completed)}
+            pressHandlerAsync={(id, completed) =>
+              pressHandlerAsync(id, completed)
+            }
           />
         )}
       />

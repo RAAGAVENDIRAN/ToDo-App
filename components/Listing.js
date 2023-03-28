@@ -4,10 +4,10 @@ import { FlatList } from "react-native";
 
 export default function Listing({
   filteredData,
-  pressHandler,
+  pressHandlerAsync,
   navigationFunction,
 
-  compToPen,
+  ComToPenAsync,
 }) {
   const [scrollLock, setScrollLock] = useState(true);
 
@@ -21,7 +21,7 @@ export default function Listing({
         renderItem={({ item }) => (
           <DisplayList
             data={filteredData}
-            compToPen={(id) => compToPen(id)}
+            ComToPenAsync={(id) => ComToPenAsync(id)}
             item={item}
             scrollLock={(scrollLock) => {
               setScrollLock(scrollLock);
@@ -29,7 +29,9 @@ export default function Listing({
             navigationTo={(id, completed, createdDate) =>
               navigationFunction(id, completed, createdDate)
             }
-            pressHandler={(id, completed) => pressHandler(id, completed)}
+            pressHandlerAsync={(id, completed) =>
+              pressHandlerAsync(id, completed)
+            }
           />
         )}
       />

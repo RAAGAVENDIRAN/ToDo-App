@@ -35,13 +35,13 @@ const LIST_ITEM_HEIGHT = 90;
 
 function DisplayList({
   item,
-  pressHandler,
+  pressHandlerAsync,
   navigationTo,
-  compToPen,
+  ComToPenAsync,
   scrollLock,
 }) {
   const [isChecked, setChecked] = useState(item.completed ? 1 : 0);
-  const [modalVisible, setModalVisible] = useState(false);
+
   const checks = ["unchecked", "checked"];
   const TRANSLATE_X_THRESHOLD = SCREEN_WIDTH * 0.3;
   const translateX = useSharedValue(0);
@@ -50,7 +50,7 @@ function DisplayList({
   const opacity = useSharedValue(1);
 
   const Checked = () => {
-    compToPen(item.id);
+    ComToPenAsync(item.id);
   };
 
   const pan = useAnimatedGestureHandler({
@@ -63,13 +63,14 @@ function DisplayList({
     },
     onEnd: () => {
       const shouldBeDismissed = translateX.value * -1 > TRANSLATE_X_THRESHOLD;
+
       if (shouldBeDismissed) {
         translateX.value = withTiming(-SCREEN_WIDTH);
         itemHeight.value = withTiming(0);
         marginVertical.value = withTiming(0);
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
-            runOnJS(pressHandler)(item.id, "yes");
+            runOnJS(pressHandlerAsync)(item.id, "yes");
 
             runOnJS(scrollLock)(true);
           }
@@ -108,7 +109,7 @@ function DisplayList({
     <>
       <TouchableWithoutFeedback
         onPress={() => {
-          navigationTo(item.id, "yes", item.createdDate);
+          navigationTo(item.id, "yes", item.createDate);
         }}
       >
         <GestureHandlerRootView>
