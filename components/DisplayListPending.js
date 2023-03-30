@@ -24,6 +24,7 @@ import {
   Swipeable,
 } from "react-native-gesture-handler";
 import { Button } from "@rneui/themed";
+import AppText from "./AppText";
 
 const checks = ["unchecked", "checked"];
 
@@ -43,7 +44,7 @@ function DisplayListPending({
 
   const TRANSLATE_X_THRESHOLD = SCREEN_WIDTH * 0.3;
   const translateX = useSharedValue(0);
-  const itemHeight = useSharedValue(90);
+  const itemHeight = useSharedValue(100);
   const marginVertical = useSharedValue(5);
   const opacity = useSharedValue(1);
 
@@ -52,8 +53,11 @@ function DisplayListPending({
   };
 
   const pan = useAnimatedGestureHandler({
-    onActive: (event) => {
-      translateX.value = event.translationX;
+    onStart: (event, context) => {
+      context.value = translateX.value;
+    },
+    onActive: (event, context) => {
+      translateX.value = event.translationX + context.value;
       runOnJS(scrollLock)(false);
     },
     onEnd: () => {
@@ -102,7 +106,7 @@ function DisplayListPending({
     <>
       <TouchableWithoutFeedback
         onPress={() => {
-          navigationTo(item.id, "no", item.createdDate);
+          navigationTo(item.id, "no", item.createDate, item.date, item.title);
         }}
       >
         <GestureHandlerRootView>
@@ -119,26 +123,41 @@ function DisplayListPending({
               onGestureEvent={pan}
             >
               <Animated.View style={[styles.container, rStyle]}>
-                <RadioButton
-                  style={styles.check}
-                  status={checks[isChecked]}
-                  onPress={() => {
-                    {
-                      setChecked(isChecked ^ 1);
-                      Unchecked();
-                    }
+                <View
+                  style={{
+                    marginTop: 10,
+                    flexDirection: "row",
                   }}
-                />
+                >
+                  <RadioButton
+                    style={styles.check}
+                    status={checks[isChecked]}
+                    onPress={() => {
+                      {
+                        setChecked(isChecked ^ 1);
+                        Unchecked();
+                      }
+                    }}
+                  />
 
-                <View style={{ flex: 8 }}>
-                  <Text
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
-                    style={[styles.DesignText]}
-                  >
-                    {item.title}
-                  </Text>
-                  <Text style={styles.date}>{item.date}</Text>
+                  <View style={{ flex: 8 }}>
+                    <AppText
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                      style={[styles.DesignText]}
+                    >
+                      {item.title}
+                    </AppText>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <AppText style={styles.dateStart}>{item.createDate}</AppText>
+                  <AppText style={styles.date}>{item.date}</AppText>
                 </View>
               </Animated.View>
             </PanGestureHandler>
@@ -163,38 +182,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    flex: 1,
     height: 100,
     backgroundColor: "#F3F8FF",
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
+
     borderRadius: 10,
     borderWidth: 0.5,
     marginBottom: 10,
     width: "90%",
     alignSelf: "center",
-    // elevation: 20,
-    // shadowOpacity: 0.08,
-
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 10,
-    // },
   },
   date: {
-    marginTop: 10,
+    fontFamily: "Poppins_300Light_Italic",
     fontSize: 10,
     color: "black",
-    alignSelf: "flex-end",
-    marginRight: 10,
+    alignItems: "flex-end",
+    marginRight: 20,
+  },
+  dateStart: {
+    fontFamily: "Poppins_300Light_Italic",
+    fontSize: 10,
+    color: "black",
+    marginLeft: 20,
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
   },
   deleteBox: {
     backgroundColor: "red",
     justifyContent: "center",
     alignItems: "center",
     width: 100,
-    height: 70,
+    height: 100,
   },
   DeleteIcon: {
     flex: 1,
@@ -208,7 +226,7 @@ const styles = StyleSheet.create({
   DesignText: {
     fontSize: 20,
     color: "black",
-    fontWeight: "bold",
+    fontFamily: "Poppins_600SemiBold",
   },
 
   iconContainer: {

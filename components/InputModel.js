@@ -5,21 +5,26 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  Platform,
   Alert,
 } from "react-native";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_300Light,
+} from "@expo-google-fonts/poppins";
 
 import { AntDesign } from "@expo/vector-icons";
 import colors from "../config/colors";
+import AppText from "./AppText";
 
 export default function InputModel({ navigation, route }) {
   const [todoInput, setTodoInput] = useState("");
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
-  const [text, setText] = useState("Empty");
+
   const [fDate, setfDate] = useState("");
 
   const onChange = (event, selectedDate) => {
@@ -37,7 +42,6 @@ export default function InputModel({ navigation, route }) {
       ":" +
       tempDate.getSeconds();
 
-    setText(newDate);
     setfDate(newDate);
   };
 
@@ -58,11 +62,21 @@ export default function InputModel({ navigation, route }) {
     setTodoInput(val);
   };
 
+  //fonts
+
+  let [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_300Light,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
   return (
     <View style={styles.container}>
       <View style={styles.boxContainer}>
         <View style={styles.top}>
-          <Text style={styles.textDesign}>Todos</Text>
+          <AppText style={styles.textDesign}>Todos</AppText>
           <AntDesign name="addfolder" size={30} color={colors.dark} />
         </View>
         <View style={styles.Wrapper}>
@@ -93,9 +107,10 @@ export default function InputModel({ navigation, route }) {
             display="dafault"
             onChange={onChange}
             minimumDate={new Date()}
+            is24Hour={true}
           />
         )}
-        <Text>{text}</Text>
+
         <View style={styles.buttonGroup}>
           <TouchableOpacity
             style={[styles.buttonDesign, istyle]}
@@ -103,7 +118,7 @@ export default function InputModel({ navigation, route }) {
               navigation.goBack();
             }}
           >
-            <Text style={styles.closeText}> X </Text>
+            <AppText style={styles.closeText}> X </AppText>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -121,11 +136,11 @@ export default function InputModel({ navigation, route }) {
                   merge: true,
                 });
               } else {
-                Alert.alert("Please select the data and time");
+                Alert.alert("Please select the data ");
               }
             }}
           >
-            <Text style={styles.crctText}>✓</Text>
+            <AppText style={styles.crctText}>✓</AppText>
           </TouchableOpacity>
         </View>
       </View>
@@ -178,6 +193,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     letterSpacing: 1,
     borderWidth: 1,
+    fontFamily: "Poppins_300Light",
   },
   top: {
     justifyContent: "center",
@@ -185,18 +201,18 @@ const styles = StyleSheet.create({
   },
   closeText: {
     fontSize: 30,
-    fontWeight: "bold",
+    fontFamily: "Poppins_700Bold_Italic",
   },
 
   textDesign: {
     color: "black",
     fontSize: 30,
-    fontWeight: "bold",
+    fontFamily: "Poppins_600SemiBold_Italic",
   },
 
   crctText: {
     fontSize: 30,
-    fontWeight: "bold",
+    fontFamily: "Poppins_700Bold_Italic",
     color: "black",
   },
 });

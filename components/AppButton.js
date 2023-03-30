@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
 import colors from "../config/colors";
+import AppText from "./AppText";
 
 function AppButton({ title, onPress, color }) {
   return (
@@ -9,7 +10,7 @@ function AppButton({ title, onPress, color }) {
       style={[styles.button, { backgroundColor: color }]}
       onPress={onPress}
     >
-      <Text style={styles.text}>{title}</Text>
+      <AppText style={styles.text}>{title}</AppText>
     </TouchableOpacity>
   );
 }
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
     color: colors.black,
     fontSize: 18,
     textTransform: "uppercase",
-    fontWeight: "bold",
+    fontFamily: "Poppins_700Bold",
   },
 });
 

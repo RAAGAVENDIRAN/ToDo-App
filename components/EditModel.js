@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   StyleSheet,
@@ -7,15 +7,64 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_300Light,
+} from "@expo-google-fonts/poppins";
+
+import Calendar from "react-native-calendars/src/calendar";
 
 import { AntDesign } from "@expo/vector-icons";
 import colors from "../config/colors";
+import AppText from "./AppText";
 
 export default function EditModel({ navigation, route }) {
-  const [editTodo, setEditTodo] = useState("");
+  console.log(route.params.title);
+  const { id, completed, curDate, finishDate, title } = route.params;
+  const finish = new Date(finishDate.slice(0, 16));
 
-  const { id, completed, curDate } = route.params;
+  const [editTodo, setEditTodo] = useState("");
+  const [betweenDates, setBetweenDates] = useState({});
+  const [endDate, setEndDate] = useState(
+    new Date(finish.setDate(finish.getDate() + 1)).toISOString().slice(0, 10)
+  );
+
+  const current = new Date(curDate.slice(0, 16));
+
+  const start = new Date(current.setDate(current.getDate() + 1))
+    .toISOString()
+    .slice(0, 10);
+
+  useEffect(() => {
+    let newBetweenDates = {};
+    newBetweenDates[start] = {
+      startingDay: true,
+      color: "dodgerblue",
+    };
+    let newEnd = new Date(endDate);
+    while (current.getTime() < newEnd.getTime()) {
+      let newDate = new Date(current.setDate(current.getDate() + 1))
+        .toISOString()
+        .slice(0, 10);
+      newBetweenDates[newDate] = {
+        color: "dodgerblue",
+      };
+    }
+    newBetweenDates[endDate] = {
+      endingDay: true,
+      color: "dodgerblue",
+    };
+
+    setBetweenDates({ ...newBetweenDates });
+  }, [endDate]);
+
+  const changeDate = (day) => {
+    // let touchDate = day.dateString;
+
+    // console.log(touchDate);
+    setEndDate(day.dateString);
+  };
 
   const istyle = {
     backgroundColor: "#C6CFFF",
@@ -29,12 +78,24 @@ export default function EditModel({ navigation, route }) {
     setEditTodo(val);
   };
 
+  //fonts
+
+  let [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_300Light,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
   return (
     <View style={styles.container}>
       <View style={styles.boxContainer}>
-        <Text style={{ fontWeight: "bold" }}>Created on: {curDate}</Text>
+        <AppText style={{ fontFamily: "Poppins_300Light" }}>
+          Created on: {curDate}
+        </AppText>
         <View style={styles.top}>
-          <Text style={styles.textDesign}>Edit Todo</Text>
+          <AppText style={styles.textDesign}>Edit Todo</AppText>
           <AntDesign name="edit" size={30} color={colors.dark}></AntDesign>
         </View>
 
@@ -51,7 +112,7 @@ export default function EditModel({ navigation, route }) {
               navigation.goBack();
             }}
           >
-            <Text style={styles.closeText}> X </Text>
+            <AppText style={styles.closeText}> X </AppText>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -62,18 +123,40 @@ export default function EditModel({ navigation, route }) {
               navigation.navigate({
                 name: "TodoList",
                 params: {
-                  EditInput: editTodo,
+                  EditInput: editTodo === "" ? title : editTodo,
                   Editid: id,
                   completed: completed,
+                  endDate: new Date(endDate).toString().slice(0, 24),
                 },
+
                 merge: true,
               });
             }}
           >
-            <Text style={styles.crctText}>✓</Text>
+            {console.log(new Date(endDate).toString().slice(0, 24))}
+            <AppText style={styles.crctText}>✓</AppText>
           </TouchableOpacity>
         </View>
       </View>
+
+      <Calendar
+        style={styles.calendar}
+        minDate={curDate}
+        onDayPress={changeDate}
+        // maxDate={finishDate}
+        markingType={"period"}
+        markedDates={{
+          // [start]: {
+          //   startingDay: true,
+          //   color: "dodgerblue",
+          // },
+          ...betweenDates,
+          // [end]: {
+          //   endingDay: true,
+          //   color: "dodgerblue",
+          // },
+        }}
+      />
     </View>
   );
 }
@@ -103,6 +186,12 @@ const styles = StyleSheet.create({
     shadowRadius: 35,
     shadowOpacity: 0.3,
   },
+  calendar: {
+    borderRadius: 10,
+    elevation: 4,
+    margin: 40,
+    width: 300,
+  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -118,6 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     letterSpacing: 1,
     borderWidth: 1,
+    fontFamily: "Poppins_300Light",
   },
   top: {
     justifyContent: "center",
@@ -125,18 +215,18 @@ const styles = StyleSheet.create({
   },
   closeText: {
     fontSize: 30,
-    fontWeight: "bold",
+    fontFamily: "Poppins_700Bold_Italic",
   },
 
   textDesign: {
     color: "black",
     fontSize: 30,
-    fontWeight: "bold",
+    fontFamily: "Poppins_600SemiBold_Italic",
   },
 
   crctText: {
     fontSize: 30,
-    fontWeight: "bold",
+    fontFamily: "Poppins_700Bold_Italic",
     color: "black",
   },
 });

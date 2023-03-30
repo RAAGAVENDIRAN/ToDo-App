@@ -2,11 +2,12 @@ import React from "react";
 
 import { StyleSheet, TouchableOpacity, Text } from "react-native";
 import colors from "../config/colors";
+import AppText from "./AppText";
 
 function Bottom({ navigated }) {
   return (
     <TouchableOpacity style={styles.touchableOpacity} onPress={navigated}>
-      <Text style={styles.floatingText}>+</Text>
+      <AppText style={styles.floatingText}>+</AppText>
     </TouchableOpacity>
   );
 }

@@ -1,34 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView, ToastAndroid, Text } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
+import AppText from "../components/AppText";
+import AppButton from "../components/AppButton";
+import { useWindowDimensions } from "react-native";
+import Iconic from "../components/Iconic";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import {
-  View,
-  StyleSheet,
-  Text,
-  TextInput,
-  Button,
-  Dimensions,
-  Pressable,
-  ToastAndroid,
-} from "react-native";
-
-import { AntDesign } from "@expo/vector-icons";
-
-const { width, height } = Dimensions.get("window");
-
-import AppButton from "../components/AppButton";
-
-export default function Login({ navigation, route }) {
+const data = [""];
+function Login({ navigation, route }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userarr, setUserarr] = useState([]);
   const [seePassword, setSeePassword] = useState(true);
   const [checkValidEmail, setCheckValidEmail] = useState(false);
+  const { width, height } = useWindowDimensions();
 
   useEffect(() => {
     if (route.params?.val) setUserarr([...userarr, route.params?.val]);
   }, [route.params?.val]);
+
+  //fonts
+  // let [fontsLoaded, error] = useFonts({
+  //   Poppins_400Regular,
+  // });
+
+  // if (!fontsLoaded) {
+  //   return null;
+  // }
 
   useEffect(() => {
     const getData = async () => {
@@ -64,7 +65,7 @@ export default function Login({ navigation, route }) {
     let regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
 
     setEmail(text);
-    if (re.test(text) || regex.test(text)) {
+    if (re.test(text) || regex.test(text) || text == "") {
       setCheckValidEmail(false);
     } else {
       setCheckValidEmail(true);
@@ -87,19 +88,38 @@ export default function Login({ navigation, route }) {
     if (!isValid)
       ToastAndroid.show("Incorrect Credentials!", ToastAndroid.SHORT);
   };
-  return (
-    <View style={styles.container}>
-      <View style={styles.boxContainer}>
-        <View style={styles.Input}>
-          <Text style={styles.text}>SIGN IN</Text>
-        </View>
 
-        <View style={styles.textField}>
-          <View>
-            <TextInput
-              style={styles.inputText}
+  return (
+    <ScrollView style={[styles.container]}>
+      <View style={{ height: height }}>
+        <View style={{ flex: 0.9 }}>
+          <View style={{ zIndex: 1 }}>
+            <View style={[styles.item, { zIndex: data.length }]}>
+              <LinearGradient
+                style={StyleSheet.absoluteFill}
+                colors={["#E8D3FF", "#C6CFFF", "#DEECFF"]}
+              />
+            </View>
+          </View>
+          <View style={styles.upperText}>
+            <AppText
+              style={{ fontFamily: "Poppins_600SemiBold", fontSize: 40 }}
+            >
+              Login
+            </AppText>
+            <AppText
+              style={{ fontFamily: "Poppins_200ExtraLight", fontSize: 20 }}
+            >
+              Please sign in to continue.
+            </AppText>
+          </View>
+          <View style={styles.middleText}>
+            <Iconic
+              name="email-outline"
+              size={30}
+              height={70}
+              placeholder="EMAIL"
               value={email}
-              placeholder="Email"
               onChangeText={validateEmail}
             />
             <View style={styles.wrongText}>
@@ -109,87 +129,107 @@ export default function Login({ navigation, route }) {
                 <Text></Text>
               )}
             </View>
-          </View>
-
-          <View style={styles.pass}>
-            <TextInput
-              style={[styles.inputText, (flex = 1)]}
-              value={password}
-              placeholder="Password"
+            <Iconic
+              name="lock-outline"
+              size={30}
+              height={70}
+              placeholder="PASSWORD"
               secureTextEntry={seePassword}
               onChangeText={(text) => setPassword(text)}
-            />
-            <AntDesign
-              name="eye"
-              size={30}
+              value={password}
               onPress={() => setSeePassword(!seePassword)}
-              style={{ position: "absolute", right: 60 }}
+            />
+          </View>
+
+          <View style={styles.Last}>
+            <AppButton
+              style={styles.button}
+              color="#DEECFF"
+              title="LOGIN"
+              onPress={Auth}
             />
           </View>
         </View>
-
-        <AppButton color="#95BDFF" title="SIGN IN" onPress={Auth} />
-        <Text>Dont't have an account?</Text>
-        <Pressable
-          onPress={() => {
-            navigation.navigate({
-              name: "SignUp",
-              params: { userarr: userarr },
-            });
-          }}
-        >
-          <Text style={{ color: "blue" }}>Sign Up</Text>
-        </Pressable>
+        <View style={styles.LastText}>
+          <AppText style={{ fontFamily: "Poppins_400Regular" }}>
+            Don't have an account?
+            <AppText
+              onPress={() => {
+                navigation.navigate({
+                  name: "SignUp",
+                  params: { userarr: userarr },
+                });
+              }}
+              style={{ color: "purple", fontFamily: "Poppins_600SemiBold" }}
+            >
+              Sign up
+            </AppText>
+          </AppText>
+        </View>
       </View>
-      <Button title="clear" onPress={clearAll} />
-    </View>
+    </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  item: {
+    height: 250,
+    borderBottomLeftRadius: 100, // logic goes here
+    marginTop: -100, // move container
+    paddingTop: 100, // move inner item down
+    overflow: "hidden",
+  },
+  upperText: {
+    marginTop: 20,
+    marginHorizontal: 15,
+  },
+  middleText: {
+    marginTop: 40,
+    marginHorizontal: 15,
+  },
+  inputText: {
+    margin: 10,
+    height: 70,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    width: 300,
+    fontFamily: "Poppins_400Regular",
+    shadowOpacity: 0.88,
+    shadowRadius: 10,
+    shadowOffset: {
+      height: 20,
+      width: 0,
+    },
+    elevation: 5,
+  },
+  Last: {
+    marginTop: 20,
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+    marginHorizontal: 30,
+  },
+  button: {
+    borderRadius: 10,
+  },
+  LastText: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#E8D3FF",
-  },
-
-  pass: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  text: {
-    fontWeight: "bold",
-    fontSize: 40,
-    paddingTop: 10,
+    flex: 0.1,
   },
   wrongText: {
     justifyContent: "flex-end",
     alignItems: "flex-end",
     marginRight: 20,
   },
-  textField: {
-    width: width - 50,
-  },
-  inputText: {
-    borderWidth: 1,
-    padding: 10,
-    width: "80%",
-    height: 50,
-    fontFamily: "Roboto",
-    fontWeight: "bold",
-    borderRadius: 25,
-    margin: 20,
-  },
   textFailed: {
     color: "red",
   },
-  boxContainer: {
-    width: width - 50,
-    height: 500,
-    justifyContent: "center",
+  Wrapper: {
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#DEECFF",
-    borderRadius: 20,
   },
 });
+
+export default Login;

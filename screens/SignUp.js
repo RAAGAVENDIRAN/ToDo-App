@@ -1,25 +1,23 @@
 import React, { useState } from "react";
-
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import {
   View,
   StyleSheet,
-  Text,
-  TextInput,
+  ScrollView,
   ToastAndroid,
-  Dimensions,
-  Pressable,
-  TouchableOpacity,
+  useWindowDimensions,
+  Text,
 } from "react-native";
-
-const { width, height } = Dimensions.get("window");
-
-import { AntDesign } from "@expo/vector-icons";
-
+import { LinearGradient } from "expo-linear-gradient";
+import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
+import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
+import Iconic from "../components/Iconic";
 
-export default function SignUp({ navigation, route }) {
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const data = [""];
+
+function SignUp({ navigation, route }) {
   const { userarr } = route.params;
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -27,34 +25,39 @@ export default function SignUp({ navigation, route }) {
   const [seePassword, setSeePassword] = useState(true);
   const [checkValidEmail, setCheckValidEmail] = useState(false);
 
+  const { width, height } = useWindowDimensions();
+
   const storeData = async (value) => {
     try {
       const jsonValue = JSON.stringify(value);
       await AsyncStorage.mergeItem("@users", jsonValue);
     } catch (e) {
-      // saving error
+      /* console.log(e); */
     }
   };
 
+  //validating email
   const validateEmail = (text) => {
     let re = /\S+@\S+\.\S+/;
     let regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
 
     setEmail(text);
-    if (re.test(text) || regex.test(text)) {
+
+    if (re.test(text) || regex.test(text) || text == "") {
       setCheckValidEmail(false);
     } else {
       setCheckValidEmail(true);
     }
   };
 
+  //validating Password
   const checkPasswordValidity = (value) => {
     if (username.trim() === "") {
       return "Username is compulsory";
     }
 
-    if (username.length < 8) {
-      return "Username must be atleast 8 characters.";
+    if (username.length < 3) {
+      return "Username must be atleast 3 characters.";
     }
 
     const isNonWhiteSpace = /^\S*$/;
@@ -124,29 +127,57 @@ export default function SignUp({ navigation, route }) {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.boxContainer}>
-        <Text style={styles.text}>SIGN UP</Text>
+  //fonts
+  let [fontsLoaded, error] = useFonts({
+    Poppins_400Regular,
+  });
 
-        <View style={styles.textField}>
-          <View>
-            <TextInput
-              style={styles.inputText}
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  return (
+    <ScrollView style={[styles.container]}>
+      <View style={{ height: height }}>
+        <View style={{ flex: 0.9 }}>
+          <View style={{ zIndex: 1 }}>
+            <View style={[styles.item, { zIndex: data.length }]}>
+              <LinearGradient
+                style={StyleSheet.absoluteFill}
+                colors={["#E8D3FF", "#C6CFFF", "#DEECFF"]}
+              />
+            </View>
+          </View>
+          <View style={styles.upperText}>
+            <AppText
+              style={{ fontFamily: "Poppins_600SemiBold", fontSize: 40 }}
+            >
+              Welcome
+            </AppText>
+            <AppText
+              style={{ fontFamily: "Poppins_200ExtraLight", fontSize: 20 }}
+            >
+              Create your Account.
+            </AppText>
+          </View>
+          <View style={styles.middleText}>
+            <Iconic
+              name="account-circle-outline"
+              size={30}
+              height={70}
+              placeholder="USER NAME"
               value={username}
-              placeholder="UserName"
               onChangeText={(text) => setUserName(text)}
             />
-          </View>
-
-          <View>
-            <TextInput
-              style={styles.inputText}
+            <Iconic
+              name="email-outline"
+              size={30}
+              height={70}
+              placeholder="EMAIL"
               value={email}
-              placeholder="Email"
               onChangeText={validateEmail}
+              onPress={() => setSeePassword(!seePassword)}
             />
-
             <View style={styles.wrongText}>
               {checkValidEmail ? (
                 <Text style={styles.textFailed}>Wrong Format Email</Text>
@@ -154,108 +185,100 @@ export default function SignUp({ navigation, route }) {
                 <Text></Text>
               )}
             </View>
+
+            <Iconic
+              name="lock-outline"
+              secureTextEntry={seePassword}
+              onPress={() => setSeePassword(!seePassword)}
+              onChangeText={(text) => setPassword(text)}
+              size={30}
+              height={70}
+              placeholder="PASSWORD"
+            />
           </View>
 
-          <View style={styles.pass}>
-            <TextInput
-              style={[styles.inputText, (flex = 1)]}
-              value={password}
-              placeholder="Password"
-              secureTextEntry={seePassword}
-              onChangeText={(text) => setPassword(text)}
-            />
-            <AntDesign
-              name="eye"
-              size={30}
-              onPress={() => setSeePassword(!seePassword)}
-              style={{ position: "absolute", right: 60 }}
-            />
+          <View style={styles.Last}>
+            <AppButton style={styles.button} color="#DEECFF" title="SIGN UP" />
           </View>
         </View>
-        {email == "" || password == "" || checkValidEmail == true ? (
-          <TouchableOpacity
-            disabled
-            style={styles.buttonDisable}
-            onPress={handleLogin}
-          >
-            <Text style={styles.text}>REGISTER</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.text}>REGISTER</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.LastText}>
+          <AppText style={{ fontFamily: "Poppins_400Regular" }}>
+            Already have an account?
+            <AppText
+              onPress={() => {
+                navigation.goBack();
+              }}
+              style={{ color: "purple", fontFamily: "Poppins_600SemiBold" }}
+            >
+              Sign in
+            </AppText>
+          </AppText>
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#E8D3FF",
   },
-  textField: {
-    width: width - 50,
+  item: {
+    height: 250,
+    borderBottomLeftRadius: 100, // logic goes here
+    marginTop: -100, // move container
+    paddingTop: 100, // move inner item down
+    overflow: "hidden",
   },
-  text: {
-    fontWeight: "bold",
-    fontSize: 40,
-    paddingTop: 10,
+  upperText: {
+    marginTop: 20,
+    marginHorizontal: 15,
   },
-  inputText: {
-    borderWidth: 1,
-    padding: 10,
-    width: "80%",
-    height: 50,
-    fontFamily: "Roboto",
-    fontWeight: "bold",
-    borderRadius: 25,
-    margin: 20,
+  middleText: {
+    marginTop: 40,
+    marginHorizontal: 15,
   },
 
-  boxContainer: {
-    width: width - 50,
-    height: 500,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#DEECFF",
-    borderRadius: 20,
-  },
-  button: {
-    backgroundColor: "#95BDFF",
-    width: 200,
-    height: 50,
-    borderRadius: 25,
-    alignItems: "center",
-    alignSelf: "center",
-    justifyContent: "center",
-  },
-  buttonDisable: {
-    backgroundColor: "grey",
-    width: 200,
-    height: 50,
-    borderRadius: 25,
-    alignItems: "center",
-    alignSelf: "center",
-    justifyContent: "center",
-  },
-
-  textFailed: {
-    color: "red",
-  },
-  text: {
-    fontSize: 30,
-  },
-  pass: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
   wrongText: {
     justifyContent: "flex-end",
     alignItems: "flex-end",
     marginRight: 20,
   },
+  textFailed: {
+    color: "red",
+  },
+  inputText: {
+    margin: 10,
+    height: 70,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    width: 300,
+    fontFamily: "Poppins_400Regular",
+    shadowOpacity: 0.88,
+    shadowRadius: 10,
+    shadowOffset: {
+      height: 20,
+      width: 0,
+    },
+    elevation: 5,
+  },
+  Last: {
+    marginTop: 20,
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+    marginHorizontal: 30,
+  },
+  button: {
+    borderRadius: 10,
+  },
+  LastText: {
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 0.1,
+  },
+  Wrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 });
+
+export default SignUp;

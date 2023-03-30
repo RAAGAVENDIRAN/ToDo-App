@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { StyleSheet, View, Alert } from "react-native";
-
+import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Header from "../components/Header";
@@ -52,6 +52,9 @@ function ToDoList({ navigation, route }) {
     };
     getData();
   }, []);
+
+  //fonts
+  let [fontsLoaded] = useFonts({ Poppins_400Regular });
 
   //store data to async storage
 
@@ -167,11 +170,13 @@ function ToDoList({ navigation, route }) {
         route.params?.curDate
       );
     }
-    if (route.params?.EditInput) {
+    if (route.params?.EditInput || route.params?.endDate) {
+      console.log("Here");
       EditHandlerAsync(
         route.params?.EditInput,
         route.params?.Editid,
-        route.params?.completed
+        route.params?.completed,
+        route.params?.endDate
       );
     }
   }, [
@@ -181,6 +186,7 @@ function ToDoList({ navigation, route }) {
     route.params?.completed,
     route.params?.curDate,
     route.params?.times,
+    route.params?.endDate,
   ]);
 
   //clearToDo
@@ -265,14 +271,16 @@ function ToDoList({ navigation, route }) {
 
   //Editing
 
-  const EditHandlerAsync = async (text, id, completed) => {
+  const EditHandlerAsync = async (text, id, completed, endDate) => {
     if (completed === "yes") {
       let editing = completedTodo.filter((item) => {
         if (item.id === id) {
           item.title = text;
+          item.date = endDate;
         }
         return item;
       });
+
       setCompletedTodo(editing);
       storeData({
         userId: {
@@ -284,6 +292,7 @@ function ToDoList({ navigation, route }) {
       let editing = pendingTodo.filter((item) => {
         if (item.id === id) {
           item.title = text;
+          item.date = endDate;
         }
         return item;
       });
@@ -324,10 +333,16 @@ function ToDoList({ navigation, route }) {
   };
 
   //navigate to EditModel
-  const navigationToModel = (id, completed, createDate) => {
+  const navigationToModel = (id, completed, createDate, date, title) => {
     navigation.navigate({
       name: "EditModel",
-      params: { id: id, completed: completed, curDate: createDate },
+      params: {
+        id: id,
+        completed: completed,
+        curDate: createDate,
+        finishDate: date,
+        title: title,
+      },
       merge: true,
     });
   };
@@ -350,7 +365,10 @@ function ToDoList({ navigation, route }) {
         screenOptions={{
           swipeEnabled: false,
 
-          tabBarStyle: { backgroundColor: "#F3F8FF" },
+          tabBarStyle: {
+            backgroundColor: "#F3F8FF",
+            fonFamily: "Poppins_400Regular",
+          },
         }}
       >
         <Tab.Screen
@@ -363,7 +381,7 @@ function ToDoList({ navigation, route }) {
               if (search !== "") Searching("");
             },
           })}
-          name="DisplayList"
+          name="Completed"
           children={() => {
             return (
               <Listing
@@ -374,8 +392,8 @@ function ToDoList({ navigation, route }) {
                 pressHandlerAsync={(id, completed) =>
                   pressHandlerAsync(id, completed)
                 }
-                navigationFunction={(id, completed, createDate) =>
-                  navigationToModel(id, completed, createDate)
+                navigationFunction={(id, completed, createDate, date, title) =>
+                  navigationToModel(id, completed, createDate, date, title)
                 }
               />
             );
@@ -390,7 +408,7 @@ function ToDoList({ navigation, route }) {
               if (search !== "") Searching("");
             },
           })}
-          name="DisplayListPending"
+          name="Pending"
           children={() => {
             return (
               <ListingPending
@@ -399,8 +417,8 @@ function ToDoList({ navigation, route }) {
                 pressHandlerAsync={(id, completed) =>
                   pressHandlerAsync(id, completed)
                 }
-                navigationFunction={(id, completed, createDate) =>
-                  navigationToModel(id, completed, createDate)
+                navigationFunction={(id, completed, createDate, date, title) =>
+                  navigationToModel(id, completed, createDate, date, title)
                 }
               />
             );
@@ -417,6 +435,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#C6CFFF",
+    // backgroundColor: "#EEEEEE",
   },
   bottomView: {
     flexDirection: "row",

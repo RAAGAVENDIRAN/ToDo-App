@@ -1,18 +1,31 @@
 import React, { useRef, useEffect } from "react";
 import { View, TextInput, StyleSheet } from "react-native";
-import AppButton from "./AppButton";
+
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_300Light,
+} from "@expo-google-fonts/poppins";
 
 function SearchToDo({ onChangeText, placeholder, value }) {
-  const inputRef = useRef(); //auto focus using Ref
+  // const inputRef = useRef(); //auto focus using Ref
 
-  useEffect(() => {
-    inputRef.current.focus();
-  }, []);
+  // useEffect(() => {
+  //   if (fontsLoaded) inputRef.current.focus();
+  // }, []);
+
+  let [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_300Light,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
       <TextInput
-        ref={inputRef}
         onChangeText={onChangeText}
         style={styles.Inputdesign}
         placeholder={placeholder}
@@ -24,19 +37,20 @@ function SearchToDo({ onChangeText, placeholder, value }) {
 
 const styles = StyleSheet.create({
   container: {
-    height: 100,
+    height: 80,
     alignItems: "center",
     justifyContent: "center",
   },
   Inputdesign: {
     borderWidth: 1,
     width: "80%",
-    paddingHorizontal: 10,
+    paddingHorizontal: 25,
     marginBottom: 20,
     borderRadius: 35,
-    fontSize: 20,
+    fontSize: 15,
     backgroundColor: "white",
-    height: 70,
+    height: 50,
+    fontFamily: "Poppins_300Light",
   },
 });
 

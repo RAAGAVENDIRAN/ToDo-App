@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View, Platform, StatusBar } from "react-native";
+import Iconic from "./components/Iconic";
 
 import Navigator from "./screens/Navigator";
 

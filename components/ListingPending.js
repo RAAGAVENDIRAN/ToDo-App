@@ -28,8 +28,8 @@ export default function ListingPending({
             PenToComAsync={(id) => {
               PenToComAsync(id);
             }}
-            navigationTo={(id, completed, createdDate) =>
-              navigationFunction(id, completed, createdDate)
+            navigationTo={(id, completed, createdDate, date, title) =>
+              navigationFunction(id, completed, createdDate, date, title)
             }
             pressHandlerAsync={(id, completed) =>
               pressHandlerAsync(id, completed)
