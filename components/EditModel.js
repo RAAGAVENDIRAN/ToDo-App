@@ -20,7 +20,6 @@ import colors from "../config/colors";
 import AppText from "./AppText";
 
 export default function EditModel({ navigation, route }) {
-  console.log(route.params.title);
   const { id, completed, curDate, finishDate, title } = route.params;
   const finish = new Date(finishDate.slice(0, 16));
 
@@ -60,9 +59,6 @@ export default function EditModel({ navigation, route }) {
   }, [endDate]);
 
   const changeDate = (day) => {
-    // let touchDate = day.dateString;
-
-    // console.log(touchDate);
     setEndDate(day.dateString);
   };
 
@@ -118,8 +114,6 @@ export default function EditModel({ navigation, route }) {
           <TouchableOpacity
             style={[styles.buttonDesign, mstyle]}
             onPress={() => {
-              // route.params.setTodo(todoInput);
-              // console.log(completed);
               navigation.navigate({
                 name: "TodoList",
                 params: {
@@ -133,7 +127,6 @@ export default function EditModel({ navigation, route }) {
               });
             }}
           >
-            {console.log(new Date(endDate).toString().slice(0, 24))}
             <AppText style={styles.crctText}>✓</AppText>
           </TouchableOpacity>
         </View>

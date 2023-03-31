@@ -1,14 +1,13 @@
-import React, { useState } from "react";
-import { RadioButton } from "react-native-paper";
+import { MaterialIcons } from "@expo/vector-icons";
 import {
+  StyleSheet,
   View,
   Text,
-  StyleSheet,
-  Modal,
+  FlatList,
   Dimensions,
   TouchableWithoutFeedback,
 } from "react-native";
-import { FontAwesome5 } from "@expo/vector-icons";
+import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
 
 import Animated, {
   useAnimatedGestureHandler,
@@ -21,36 +20,22 @@ import Animated, {
 import {
   GestureHandlerRootView,
   PanGestureHandler,
-  Swipeable,
 } from "react-native-gesture-handler";
-import { Button } from "@rneui/themed";
-import AppText from "./AppText";
 
-const checks = ["unchecked", "checked"];
+import AppText from "./AppText";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const LIST_ITEM_HEIGHT = 90;
+const LIST_ITEM_HEIGHT = 80;
 
-function DisplayListPending({
-  item,
-  MoveToTrashAsync,
-  navigationTo,
-  navigation,
-  scrollLock,
-  PenToComAsync,
-}) {
-  const [isChecked, setChecked] = useState(item.completed ? 1 : 0);
-
+function DisplayListTrash({ item, remove }) {
   const TRANSLATE_X_THRESHOLD = SCREEN_WIDTH * 0.3;
   const translateX = useSharedValue(0);
-  const itemHeight = useSharedValue(100);
+  const itemHeight = useSharedValue(80);
   const marginVertical = useSharedValue(5);
   const opacity = useSharedValue(1);
 
-  const Unchecked = () => {
-    PenToComAsync(item.id);
-  };
+  const isCompleted = item.completed;
 
   const pan = useAnimatedGestureHandler({
     onStart: (event, context) => {
@@ -58,23 +43,22 @@ function DisplayListPending({
     },
     onActive: (event, context) => {
       translateX.value = event.translationX + context.value;
-      runOnJS(scrollLock)(false);
     },
     onEnd: () => {
       const shouldBeDismissed = translateX.value * -1 > TRANSLATE_X_THRESHOLD;
+
       if (shouldBeDismissed) {
         translateX.value = withTiming(-SCREEN_WIDTH);
         itemHeight.value = withTiming(0);
         marginVertical.value = withTiming(0);
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
-            runOnJS(MoveToTrashAsync)(item.id, "no", item.createDate);
-            runOnJS(scrollLock)(true);
+            console.log("Delete Called");
+            runOnJS(remove)(item.id, item.completed);
           }
         });
       } else {
         translateX.value = withSpring(0);
-        runOnJS(scrollLock)(true);
       }
     },
   });
@@ -104,23 +88,19 @@ function DisplayListPending({
 
   return (
     <>
-      <TouchableWithoutFeedback
-        onPress={() => {
-          navigationTo(item.id, "no", item.createDate, item.date, item.title);
-        }}
-      >
+      <TouchableWithoutFeedback>
         <GestureHandlerRootView>
           <Animated.View style={rTaskContainerStyle}>
             <Animated.View style={[styles.iconContainer, rIconContainerStyle]}>
-              <FontAwesome5
-                name={"trash-alt"}
-                size={70 * 0.4}
-                color={"red"}
-              ></FontAwesome5>
+              <MaterialIcons name={"restore"} size={70 * 0.4} color={"red"} />
             </Animated.View>
+
             <PanGestureHandler
-              activateAfterLongPress={100}
+              onactivateAfterLongPress={100}
               onGestureEvent={pan}
+              onEnd={() => {
+                console.log(item);
+              }}
             >
               <Animated.View style={[styles.container, rStyle]}>
                 <View
@@ -129,27 +109,22 @@ function DisplayListPending({
                     flexDirection: "row",
                   }}
                 >
-                  <RadioButton
-                    style={styles.check}
-                    status={checks[isChecked]}
-                    onPress={() => {
-                      {
-                        setChecked(isChecked ^ 1);
-                        Unchecked();
-                      }
-                    }}
-                  />
-
-                  <View style={{ flex: 8 }}>
+                  <View style={{ flex: 8, paddingLeft: 15 }}>
                     <AppText
                       numberOfLines={2}
                       ellipsizeMode="tail"
-                      style={[styles.DesignText]}
+                      style={[
+                        styles.DesignText,
+                        isCompleted
+                          ? { textDecorationLine: "line-through" }
+                          : {},
+                      ]}
                     >
                       {item.title}
                     </AppText>
                   </View>
                 </View>
+
                 <View
                   style={{
                     flexDirection: "row",
@@ -180,17 +155,25 @@ const styles = StyleSheet.create({
   check: {
     backgroundColor: "#391e7e",
     flex: 1,
+    marginRight: 20,
   },
   container: {
-    height: 100,
+    height: 80,
     backgroundColor: "#F3F8FF",
     justifyContent: "space-evenly",
-
     borderRadius: 10,
     borderWidth: 0.5,
-    marginBottom: 10,
+    marginBottom: 20,
     width: "90%",
     alignSelf: "center",
+
+    // shadowOpacity: 0.88,
+    // shadowRadius: 10,
+    // shadowOffset: {
+    //   height: 20,
+    //   width: 0,
+    // },
+    // elevation: 5,
   },
   date: {
     fontFamily: "Poppins_300Light_Italic",
@@ -239,4 +222,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DisplayListPending;
+export default DisplayListTrash;

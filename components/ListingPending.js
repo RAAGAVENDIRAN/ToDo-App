@@ -6,7 +6,7 @@ import DisplayListPending from "./DisplayListPending";
 
 export default function ListingPending({
   filteredData,
-  pressHandlerAsync,
+  MoveToTrashAsync,
   navigationFunction,
   PenToComAsync,
 }) {
@@ -31,8 +31,8 @@ export default function ListingPending({
             navigationTo={(id, completed, createdDate, date, title) =>
               navigationFunction(id, completed, createdDate, date, title)
             }
-            pressHandlerAsync={(id, completed) =>
-              pressHandlerAsync(id, completed)
+            MoveToTrashAsync={(id, completed) =>
+              MoveToTrashAsync(id, completed)
             }
           />
         )}

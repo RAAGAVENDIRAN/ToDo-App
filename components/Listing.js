@@ -4,9 +4,8 @@ import { FlatList } from "react-native";
 
 export default function Listing({
   filteredData,
-  pressHandlerAsync,
+  MoveToTrashAsync,
   navigationFunction,
-
   ComToPenAsync,
 }) {
   const [scrollLock, setScrollLock] = useState(true);
@@ -29,8 +28,8 @@ export default function Listing({
             navigationTo={(id, completed, createdDate, date, title) =>
               navigationFunction(id, completed, createdDate, date, title)
             }
-            pressHandlerAsync={(id, completed) =>
-              pressHandlerAsync(id, completed)
+            MoveToTrashAsync={(id, completed) =>
+              MoveToTrashAsync(id, completed)
             }
           />
         )}

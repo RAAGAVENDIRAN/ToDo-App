@@ -6,6 +6,9 @@ import InputModel from "../components/InputModel";
 import EditModel from "../components/EditModel";
 import Login from "./Login";
 import SignUp from "./SignUp";
+import Profile from "./Profile";
+import Trash from "./Trash";
+// import AuthStack from "./AppStack";
 
 const Stack = createNativeStackNavigator();
 
@@ -27,9 +30,17 @@ export default function NavigatorPage() {
             headerShown: false,
           }}
         ></Stack.Screen>
+
         <Stack.Screen
           name="TodoList"
           component={ToDoList}
+          options={{
+            headerShown: false,
+          }}
+        ></Stack.Screen>
+        <Stack.Screen
+          name="Trash"
+          component={Trash}
           options={{
             headerShown: false,
           }}
@@ -50,13 +61,13 @@ export default function NavigatorPage() {
             animation: "flip",
           }}
         />
-        {/* <Stack.Screen
+        <Stack.Screen
           name="Profile"
           component={Profile}
           options={{
             animation: "flip",
           }}
-        ></Stack.Screen> */}
+        ></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

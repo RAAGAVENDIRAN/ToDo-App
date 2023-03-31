@@ -29,7 +29,7 @@ const LIST_ITEM_HEIGHT = 90;
 
 function DisplayList({
   item,
-  pressHandlerAsync,
+  MoveToTrashAsync,
   navigationTo,
   ComToPenAsync,
   scrollLock,
@@ -64,7 +64,7 @@ function DisplayList({
         marginVertical.value = withTiming(0);
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
-            runOnJS(pressHandlerAsync)(item.id, "yes");
+            runOnJS(MoveToTrashAsync)(item.id, "yes");
 
             runOnJS(scrollLock)(true);
           }

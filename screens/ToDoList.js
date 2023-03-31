@@ -3,10 +3,11 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import { StyleSheet, View, Alert } from "react-native";
 import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome5 } from "@expo/vector-icons";
 
-import Header from "../components/Header";
 import SearchToDo from "../components/SearchToDo";
-
+import AppText from "../components/AppText";
 import Bottom from "../components/Bottom";
 import Listing from "../components/Listing";
 import ListingPending from "../components/ListingPending";
@@ -20,6 +21,8 @@ function ToDoList({ navigation, route }) {
 
   const [completedTodo, setCompletedTodo] = useState([]);
   const [pendingTodo, setPendingTodo] = useState([]);
+  const [trashTodo, setTrashTodo] = useState([]);
+  const [focus, setFocus] = useState(true);
 
   const { user } = route.params;
   const userId = user.userId;
@@ -35,23 +38,33 @@ function ToDoList({ navigation, route }) {
 
         let tempPendingTodo = [];
         let tempCompletedTodo = [];
+        let tempTrashTodo = [];
 
         if (value.userId.completedTodo)
           tempCompletedTodo = value.userId.completedTodo;
         if (value.userId.pendingTodo)
           tempPendingTodo = value.userId.pendingTodo;
+        if (value.userId.trashTodo) tempTrashTodo = value.userId.trashTodo;
 
         setCompletedTodo(tempCompletedTodo);
         arr = tempCompletedTodo;
         // setcntCom(tempCompletedTodo.length);
         setPendingTodo(tempPendingTodo);
         // setcntPen(tempPendingTodo.length);
+        setTrashTodo(tempTrashTodo);
       } catch (e) {
         // error reading value
       }
     };
-    getData();
-  }, []);
+    if (focus) getData();
+  }, [focus]);
+
+  // Focus Listener
+  useEffect(() => {
+    navigation.addListener("focus", () => {
+      setFocus(true);
+    });
+  }, [navigation]);
 
   //fonts
   let [fontsLoaded] = useFonts({ Poppins_400Regular });
@@ -128,34 +141,69 @@ function ToDoList({ navigation, route }) {
     }
   };
 
-  //delete todo
+  //removeFromTrash
 
-  const pressHandlerAsync = async (id, completed) => {
+  const removeFromTrashAsync = (id) => {
+    let moveFromTrash;
+    let newtodo = trashTodo.filter((item) => {
+      if (item.id === id) {
+        moveFromTrash = item;
+        return;
+      }
+      return item;
+    });
+
+    setCompletedTodo(newtodo);
+    storeData({
+      userId: {
+        completedTodo: newtodo,
+        pendingTodo: pendingTodo,
+      },
+    });
+  };
+
+  //move to trash
+
+  const MoveToTrashAsync = async (id, completed) => {
+    console.log("========");
+    let moveToTrash;
     if (completed === "yes") {
       let newtodo = completedTodo.filter((item) => {
-        if (item.id !== id) return item;
+        if (item.id === id) {
+          moveToTrash = item;
+          return;
+        }
+        return item;
       });
+      console.log("here");
       setCompletedTodo(newtodo);
+      setTrashTodo([...trashTodo, moveToTrash]);
       storeData({
         userId: {
           completedTodo: newtodo,
           pendingTodo: pendingTodo,
+          trashTodo: [...trashTodo, moveToTrash],
         },
       });
     } else {
       let newtodo = pendingTodo.filter((item) => {
-        if (item.id !== id) return item;
+        if (item.id === id) {
+          moveToTrash = item;
+          return;
+        }
+        return item;
       });
       setPendingTodo(newtodo);
+      setTrashTodo([...trashTodo, moveToTrash]);
       storeData({
         userId: {
           completedTodo: completedTodo,
           pendingTodo: newtodo,
+          trashTodo: [...trashTodo, moveToTrash],
         },
       });
     }
   };
-
   //navigte to add function
   const navigated = () => {
     navigation.navigate("InputModel");
@@ -189,55 +237,6 @@ function ToDoList({ navigation, route }) {
     route.params?.endDate,
   ]);
 
-  //clearToDo
-
-  const handleClearAsync = async () => {
-    if (arr.length > 0) {
-      let bool = arr[0].completed;
-      Alert.alert("OOPS!", "Your Todos will be deleted", [
-        {
-          text: "Confirm",
-          onPress: () => {
-            arr = [];
-            if (bool === true) {
-              setCompletedTodo([]);
-              storeData({
-                userId: {
-                  completedTodo: [],
-                  pendingTodo: pendingTodo,
-                },
-              });
-            } else {
-              setPendingTodo([]);
-              storeData({
-                userId: {
-                  completedTodo: completedTodo,
-                  pendingTodo: [],
-                },
-              });
-            }
-          },
-        },
-        {
-          text: "Cancel",
-
-          style: "cancel",
-        },
-      ]);
-    } else {
-      Alert.alert("OOPS!", "EMPTY", [
-        {
-          text: "Confirm",
-        },
-        {
-          text: "Cancel",
-
-          style: "cancel",
-        },
-      ]);
-    }
-  };
-
   //submitting
 
   const submitHandlerAsync = async (todoInputValue, times, curDate) => {
@@ -259,6 +258,7 @@ function ToDoList({ navigation, route }) {
         userId: {
           completedTodo: completedTodo,
           pendingTodo: newtodos,
+          trashTodo: trashTodo,
         },
       });
       setPendingTodo(newtodos);
@@ -286,6 +286,7 @@ function ToDoList({ navigation, route }) {
         userId: {
           completedTodo: editing,
           pendingTodo: pendingTodo,
+          trashTodo: trashTodo,
         },
       });
     } else {
@@ -301,6 +302,7 @@ function ToDoList({ navigation, route }) {
         userId: {
           completedTodo: completedTodo,
           pendingTodo: editing,
+          trashTodo: trashTodo,
         },
       });
     }
@@ -309,7 +311,7 @@ function ToDoList({ navigation, route }) {
   //search Filter Function
   const searchFilterFunction = (array, newtext) => {
     let bool = array[0].completed;
-    // if (newtext) {
+
     let newData = array.filter((item) => {
       let itemData = item.title ? item.title.toUpperCase() : "".toUpperCase();
       let textData = newtext.toUpperCase();
@@ -318,18 +320,9 @@ function ToDoList({ navigation, route }) {
 
     if (bool) {
       setCompletedTodo(newData);
-      // setTab(0);
     } else {
       setPendingTodo(newData);
-      // setTab(1);
     }
-    // } else {
-    //   if (bool) {
-    //     setCompletedTodo(array);
-    //   } else {
-    //     setPendingTodo(array);
-    //   }
-    // }
   };
 
   //navigate to EditModel
@@ -349,13 +342,46 @@ function ToDoList({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      <Header
-        // navigation={navigation}
-        handleClearTodos={handleClearAsync}
-        username={username}
-        // comLen={completedTodo.length}
-        // penLen={pendingTodo.length}
-      />
+      <View style={styles.Headercontainer}>
+        <View style={{ flexDirection: "row" }}>
+          <FontAwesome5
+            name="user"
+            size={30}
+            onPress={() => {
+              navigation.navigate({
+                name: "Profile",
+                params: {
+                  user: username,
+                  completed: completedTodo.length,
+                  pending: pendingTodo.length,
+                },
+                merge: true,
+              });
+            }}
+          />
+          <AppText style={styles.DesignText}> {username}👋</AppText>
+        </View>
+
+        <MaterialIcons
+          name="restore-from-trash"
+          style={styles.Headericon}
+          size={30}
+          color="black"
+          onPress={() => {
+            setFocus(false);
+            navigation.navigate({
+              name: "Trash",
+              params: {
+                trashTodo: trashTodo,
+                completedTodo: completedTodo,
+                pendingTodo: pendingTodo,
+                userId: userId,
+              },
+            });
+          }}
+        />
+      </View>
+
       <SearchToDo
         value={search}
         placeholder={"Search Here"}
@@ -389,8 +415,8 @@ function ToDoList({ navigation, route }) {
                   ComToPenAsync(id);
                 }}
                 filteredData={completedTodo}
-                pressHandlerAsync={(id, completed) =>
-                  pressHandlerAsync(id, completed)
+                MoveToTrashAsync={(id, completed) =>
+                  MoveToTrashAsync(id, completed)
                 }
                 navigationFunction={(id, completed, createDate, date, title) =>
                   navigationToModel(id, completed, createDate, date, title)
@@ -414,8 +440,8 @@ function ToDoList({ navigation, route }) {
               <ListingPending
                 filteredData={pendingTodo}
                 PenToComAsync={(id) => PenToComAsync(id)}
-                pressHandlerAsync={(id, completed) =>
-                  pressHandlerAsync(id, completed)
+                MoveToTrashAsync={(id, completed) =>
+                  MoveToTrashAsync(id, completed)
                 }
                 navigationFunction={(id, completed, createDate, date, title) =>
                   navigationToModel(id, completed, createDate, date, title)
@@ -435,7 +461,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#C6CFFF",
-    // backgroundColor: "#EEEEEE",
   },
   bottomView: {
     flexDirection: "row",
@@ -445,6 +470,21 @@ const styles = StyleSheet.create({
 
   itemStyle: {
     padding: 10,
+  },
+
+  Headercontainer: {
+    paddingTop: 20,
+    height: 80,
+    backgroundColor: "#C6CFFF",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: 10,
+  },
+  DesignText: {
+    fontSize: 25,
+    width: "80%",
+    color: "black",
+    fontFamily: "Poppins_700Bold_Italic",
   },
 });
 export default ToDoList;
