@@ -206,7 +206,10 @@ function ToDoList({ navigation, route }) {
   };
   //navigte to add function
   const navigated = () => {
-    navigation.navigate("InputModel");
+    navigation.navigate({
+      name: "InputModel",
+      params: { todo: [...completedTodo, ...pendingTodo] },
+    });
   };
 
   //to set the input
@@ -342,51 +345,54 @@ function ToDoList({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.Headercontainer}>
-        <View style={{ flexDirection: "row" }}>
-          <FontAwesome5
-            name="user"
+      <View style={styles.Top}>
+        <View style={styles.Headercontainer}>
+          <View style={{ flexDirection: "row" }}>
+            <FontAwesome5
+              name="user"
+              size={30}
+              color="black"
+              onPress={() => {
+                navigation.navigate({
+                  name: "Profile",
+                  params: {
+                    user: username,
+                    completed: completedTodo.length,
+                    pending: pendingTodo.length,
+                  },
+                  merge: true,
+                });
+              }}
+            />
+          </View>
+
+          <MaterialIcons
+            name="restore-from-trash"
+            style={styles.Headericon}
             size={30}
+            color="black"
             onPress={() => {
+              setFocus(false);
               navigation.navigate({
-                name: "Profile",
+                name: "Trash",
                 params: {
-                  user: username,
-                  completed: completedTodo.length,
-                  pending: pendingTodo.length,
+                  trashTodo: trashTodo,
+                  completedTodo: completedTodo,
+                  pendingTodo: pendingTodo,
+                  userId: userId,
                 },
-                merge: true,
               });
             }}
           />
-          <AppText style={styles.DesignText}> {username}👋</AppText>
         </View>
 
-        <MaterialIcons
-          name="restore-from-trash"
-          style={styles.Headericon}
-          size={30}
-          color="black"
-          onPress={() => {
-            setFocus(false);
-            navigation.navigate({
-              name: "Trash",
-              params: {
-                trashTodo: trashTodo,
-                completedTodo: completedTodo,
-                pendingTodo: pendingTodo,
-                userId: userId,
-              },
-            });
-          }}
+        <SearchToDo
+          style={{ backgroundColor: "#fff" }}
+          value={search}
+          placeholder={"Search Here"}
+          onChangeText={Searching}
         />
       </View>
-
-      <SearchToDo
-        value={search}
-        placeholder={"Search Here"}
-        onChangeText={Searching}
-      />
       <Tab.Navigator
         screenOptions={{
           swipeEnabled: false,
@@ -407,6 +413,15 @@ function ToDoList({ navigation, route }) {
               if (search !== "") Searching("");
             },
           })}
+          options={{
+            tabBarStyle: {
+              backgroundColor: "#fff",
+              labelStyle: {
+                fontFamily: "Poppins_400Regular",
+                fontSize: 30,
+              },
+            },
+          }}
           name="Completed"
           children={() => {
             return (
@@ -460,7 +475,11 @@ function ToDoList({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#C6CFFF",
+
+    backgroundColor: "#fff",
+  },
+  Top: {
+    backgroundColor: "#B0DAFF",
   },
   bottomView: {
     flexDirection: "row",
@@ -475,10 +494,10 @@ const styles = StyleSheet.create({
   Headercontainer: {
     paddingTop: 20,
     height: 80,
-    backgroundColor: "#C6CFFF",
+    paddingHorizontal: 10,
+    borderRadius: 20,
     flexDirection: "row",
     justifyContent: "space-between",
-    marginHorizontal: 10,
   },
   DesignText: {
     fontSize: 25,

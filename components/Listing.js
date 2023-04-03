@@ -16,7 +16,8 @@ export default function Listing({
         scrollEnabled={scrollLock}
         data={filteredData}
         keyExtractor={(item) => item.id}
-        style={{ backgroundColor: "#C6CFFF" }}
+        // style={{ backgroundColor: "#C6CFFF" }}
+        style={{ backgroundColor: "#fff" }}
         renderItem={({ item }) => (
           <DisplayList
             data={filteredData}

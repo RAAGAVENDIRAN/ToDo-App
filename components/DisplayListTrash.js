@@ -28,7 +28,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const LIST_ITEM_HEIGHT = 80;
 
-function DisplayListTrash({ item, remove }) {
+function DisplayListTrash({ item, remove, deleteTrash }) {
   const TRANSLATE_X_THRESHOLD = SCREEN_WIDTH * 0.3;
   const translateX = useSharedValue(0);
   const itemHeight = useSharedValue(80);
@@ -46,6 +46,7 @@ function DisplayListTrash({ item, remove }) {
     },
     onEnd: () => {
       const shouldBeDismissed = translateX.value * -1 > TRANSLATE_X_THRESHOLD;
+      const delete_trash = translateX.value > TRANSLATE_X_THRESHOLD;
 
       if (shouldBeDismissed) {
         translateX.value = withTiming(-SCREEN_WIDTH);
@@ -60,6 +61,18 @@ function DisplayListTrash({ item, remove }) {
       } else {
         translateX.value = withSpring(0);
       }
+
+      if (delete_trash) {
+        translateX.value = withTiming(SCREEN_WIDTH);
+        itemHeight.value = withTiming(0);
+        marginVertical.value = withTiming(0);
+        opacity.value = withTiming(0, undefined, (isFinished) => {
+          if (isFinished) {
+            console.log("Delete Called");
+            runOnJS(deleteTrash)(item.id, item.completed);
+          }
+        });
+      }
     },
   });
 
@@ -73,7 +86,14 @@ function DisplayListTrash({ item, remove }) {
 
   const rIconContainerStyle = useAnimatedStyle(() => {
     const opacity = withTiming(
-      translateX.value < TRANSLATE_X_THRESHOLD ? 1 : 0
+      translateX.value < -TRANSLATE_X_THRESHOLD ? 1 : 0
+    );
+    return { opacity };
+  });
+
+  const rIconContainerStyleDelete = useAnimatedStyle(() => {
+    const opacity = withTiming(
+      translateX.value > TRANSLATE_X_THRESHOLD ? 1 : 0
     );
     return { opacity };
   });
@@ -83,8 +103,18 @@ function DisplayListTrash({ item, remove }) {
       height: itemHeight.value,
       marginVertical: marginVertical.value,
       opacity: opacity.value,
+      marginBottom: 13,
     };
   });
+
+  // const rTaskContainerStyleDelete = useAnimatedStyle(() => {
+  //   return {
+  //     height: itemHeight.value,
+  //     marginVertical: marginVertical.value,
+  //     opacity: opacity.value,
+  //     marginBottom: 13,
+  //   };
+  // });
 
   return (
     <>
@@ -93,6 +123,11 @@ function DisplayListTrash({ item, remove }) {
           <Animated.View style={rTaskContainerStyle}>
             <Animated.View style={[styles.iconContainer, rIconContainerStyle]}>
               <MaterialIcons name={"restore"} size={70 * 0.4} color={"red"} />
+            </Animated.View>
+            <Animated.View
+              style={[styles.iconContainerDelete, rIconContainerStyleDelete]}
+            >
+              <MaterialIcons name={"delete"} size={70 * 0.4} color={"red"} />
             </Animated.View>
 
             <PanGestureHandler
@@ -159,21 +194,20 @@ const styles = StyleSheet.create({
   },
   container: {
     height: 80,
-    backgroundColor: "#F3F8FF",
+    backgroundColor: "#fff",
     justifyContent: "space-evenly",
     borderRadius: 10,
-    borderWidth: 0.5,
-    marginBottom: 20,
+    margin: 10,
     width: "90%",
     alignSelf: "center",
-
-    // shadowOpacity: 0.88,
-    // shadowRadius: 10,
-    // shadowOffset: {
-    //   height: 20,
-    //   width: 0,
-    // },
-    // elevation: 5,
+    shadowColor: "#2F89FC",
+    shadowOpacity: 0.88,
+    shadowRadius: 10,
+    shadowOffset: {
+      height: 20,
+      width: 0,
+    },
+    elevation: 5,
   },
   date: {
     fontFamily: "Poppins_300Light_Italic",
@@ -219,6 +253,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     right: "10%",
+  },
+
+  iconContainerDelete: {
+    height: LIST_ITEM_HEIGHT,
+    width: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    left: "10%",
   },
 });
 

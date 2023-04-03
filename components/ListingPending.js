@@ -17,7 +17,7 @@ export default function ListingPending({
         data={filteredData}
         keyExtractor={(item) => item.id}
         scrollEnabled={scrollLock}
-        style={{ backgroundColor: "#C6CFFF" }}
+        style={{ backgroundColor: "#fff" }}
         renderItem={({ item }) => (
           <DisplayListPending
             data={filteredData}

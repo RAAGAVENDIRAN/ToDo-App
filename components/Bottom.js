@@ -20,9 +20,9 @@ const styles = StyleSheet.create({
     fontSize: 60,
   },
   touchableOpacity: {
-    backgroundColor: "#E8D3FF",
+    backgroundColor: "#B0DAFF",
     position: "absolute",
-    borderWidth: 0.5,
+    // borderWidth: 0.5,
     width: 70,
     height: 70,
     right: 30,

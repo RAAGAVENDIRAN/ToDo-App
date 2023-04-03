@@ -96,6 +96,8 @@ function DisplayList({
       height: itemHeight.value,
       marginVertical: marginVertical.value,
       opacity: opacity.value,
+      // backgroundColor: "red",
+      marginBottom: 13,
     };
   });
 
@@ -129,6 +131,7 @@ function DisplayList({
                   }}
                 >
                   <RadioButton
+                    color="#2F89FC"
                     style={styles.check}
                     status={checks[isChecked]}
                     onPress={() => {
@@ -178,27 +181,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   check: {
-    backgroundColor: "#391e7e",
     flex: 1,
     marginRight: 20,
   },
   container: {
     height: 100,
-    backgroundColor: "#F3F8FF",
+    backgroundColor: "#fff",
     justifyContent: "space-evenly",
     borderRadius: 10,
-    borderWidth: 0.5,
-    marginBottom: 20,
+    marginVertical: 10,
     width: "90%",
     alignSelf: "center",
-
-    // shadowOpacity: 0.88,
-    // shadowRadius: 10,
-    // shadowOffset: {
-    //   height: 20,
-    //   width: 0,
-    // },
-    // elevation: 5,
+    shadowOpacity: 0.88,
+    shadowRadius: 10,
+    shadowColor: "#2F89FC",
+    shadowOffset: {
+      height: 20,
+      width: 0,
+    },
+    elevation: 5,
   },
   date: {
     fontFamily: "Poppins_300Light_Italic",
@@ -244,6 +245,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     right: "10%",
+  },
+
+  iconContainerDelete: {
+    height: LIST_ITEM_HEIGHT,
+    width: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    left: "10%",
   },
 });
 

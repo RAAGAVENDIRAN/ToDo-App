@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { View, TextInput, StyleSheet } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 
 import {
   useFonts,
@@ -7,7 +8,7 @@ import {
   Poppins_300Light,
 } from "@expo-google-fonts/poppins";
 
-function SearchToDo({ onChangeText, placeholder, value }) {
+function SearchToDo({ onChangeText, placeholder, value, style }) {
   // const inputRef = useRef(); //auto focus using Ref
 
   // useEffect(() => {
@@ -27,7 +28,7 @@ function SearchToDo({ onChangeText, placeholder, value }) {
     <View style={styles.container}>
       <TextInput
         onChangeText={onChangeText}
-        style={styles.Inputdesign}
+        style={[styles.Inputdesign, style]}
         placeholder={placeholder}
         value={value}
       />
@@ -42,15 +43,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   Inputdesign: {
-    borderWidth: 1,
     width: "80%",
     paddingHorizontal: 25,
     marginBottom: 20,
     borderRadius: 35,
     fontSize: 15,
+    borderWidth: 0.5,
     backgroundColor: "white",
     height: 50,
     fontFamily: "Poppins_300Light",
+    elevation: 10,
   },
 });
 

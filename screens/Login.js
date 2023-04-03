@@ -78,6 +78,8 @@ function Login({ navigation, route }) {
       if (item.email === email) {
         if (item.password === password) {
           isValid = true;
+          setPassword("");
+          setEmail("");
           navigation.navigate({
             name: "TodoList",
             params: { user: item },
@@ -97,7 +99,8 @@ function Login({ navigation, route }) {
             <View style={[styles.item, { zIndex: data.length }]}>
               <LinearGradient
                 style={StyleSheet.absoluteFill}
-                colors={["#E8D3FF", "#C6CFFF", "#DEECFF"]}
+                // colors={["#E8D3FF", "#C6CFFF", "#DEECFF"]}
+                colors={["#B0DAFF", "#B0DAFF", "#B0DAFF"]}
               />
             </View>
           </View>
@@ -125,9 +128,7 @@ function Login({ navigation, route }) {
             <View style={styles.wrongText}>
               {checkValidEmail ? (
                 <Text style={styles.textFailed}>Wrong Format Email</Text>
-              ) : (
-                <Text></Text>
-              )}
+              ) : null}
             </View>
             <Iconic
               name="lock-outline"
@@ -144,7 +145,7 @@ function Login({ navigation, route }) {
           <View style={styles.Last}>
             <AppButton
               style={styles.button}
-              color="#DEECFF"
+              color="#B0DAFF"
               title="LOGIN"
               onPress={Auth}
             />
@@ -160,7 +161,7 @@ function Login({ navigation, route }) {
                   params: { userarr: userarr },
                 });
               }}
-              style={{ color: "purple", fontFamily: "Poppins_600SemiBold" }}
+              style={{ color: "#B0DAFF", fontFamily: "Poppins_600SemiBold" }}
             >
               Sign up
             </AppText>
@@ -173,6 +174,7 @@ function Login({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
   },
   item: {
     height: 250,

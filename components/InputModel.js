@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   StyleSheet,
@@ -6,9 +6,13 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  ScrollView,
+  Dimensions,
 } from "react-native";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
+import Calendar from "react-native-calendars/src/calendar";
+
 import {
   useFonts,
   Poppins_400Regular,
@@ -19,13 +23,38 @@ import { AntDesign } from "@expo/vector-icons";
 import colors from "../config/colors";
 import AppText from "./AppText";
 
+const { width, height } = Dimensions.get("screen");
+
 export default function InputModel({ navigation, route }) {
+  const { todo } = route.params;
   const [todoInput, setTodoInput] = useState("");
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
-
   const [fDate, setfDate] = useState("");
+  const [markDate, setMarkDate] = useState({});
+
+  useEffect(() => {
+    calendarDate();
+  }, [markDate]);
+
+  const calendarDate = () => {
+    todo.map((item) => {
+      if (item.completed == true) {
+        markDate[new Date(item.date).toISOString().slice(0, 10)] = {
+          marked: true,
+          selectedColor: "green",
+          selected: true,
+        };
+      } else {
+        markDate[new Date(item.date).toISOString().slice(0, 10)] = {
+          marked: true,
+          selectedColor: "red",
+          selected: true,
+        };
+      }
+    });
+  };
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -51,11 +80,11 @@ export default function InputModel({ navigation, route }) {
   };
 
   const istyle = {
-    backgroundColor: "#C6CFFF",
+    backgroundColor: "#B0DAFF",
   };
 
   const mstyle = {
-    backgroundColor: "#C6CFFF",
+    backgroundColor: "#B0DAFF",
   };
 
   const getInput = (val) => {
@@ -73,89 +102,114 @@ export default function InputModel({ navigation, route }) {
     return null;
   }
   return (
-    <View style={styles.container}>
-      <View style={styles.boxContainer}>
-        <View style={styles.top}>
-          <AppText style={styles.textDesign}>Todos</AppText>
-          <AntDesign name="addfolder" size={30} color={colors.dark} />
+    <ScrollView>
+      <View style={styles.container}>
+        <View style={styles.calendar}>
+          <Calendar markedDates={{ ...markDate }} />
         </View>
-        <View style={styles.Wrapper}>
-          <TextInput
-            style={styles.inputStyle}
-            placeholder="Add Todo"
-            onChangeText={getInput}
-            value={todoInput}
-            autoFocus={true}
-          />
-          <AntDesign
-            name="calendar"
-            size={30}
-            onPress={() => showMode("date")}
-          />
-          <AntDesign
-            name="clockcircle"
-            size={30}
-            onPress={() => showMode("time")}
-          />
-        </View>
+        <View style={styles.box}>
+          <View style={styles.boxContainer}>
+            <View style={styles.top}>
+              <AppText style={styles.textDesign}>Todos</AppText>
+              <AntDesign name="addfolder" size={30} color={colors.dark} />
+            </View>
+            <View style={styles.Wrapper}>
+              <TextInput
+                style={styles.inputStyle}
+                placeholder="Add Todo"
+                onChangeText={getInput}
+                value={todoInput}
+                autoFocus={true}
+              />
+              <AntDesign
+                name="calendar"
+                size={30}
+                onPress={() => showMode("date")}
+              />
+              <AntDesign
+                name="clockcircle"
+                size={30}
+                onPress={() => showMode("time")}
+              />
+            </View>
 
-        {show && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={date}
-            mode={mode}
-            display="dafault"
-            onChange={onChange}
-            minimumDate={new Date()}
-            is24Hour={true}
-          />
-        )}
+            {show && (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={date}
+                mode={mode}
+                display="dafault"
+                onChange={onChange}
+                minimumDate={new Date()}
+                is24Hour={true}
+              />
+            )}
 
-        <View style={styles.buttonGroup}>
-          <TouchableOpacity
-            style={[styles.buttonDesign, istyle]}
-            onPress={() => {
-              navigation.goBack();
-            }}
-          >
-            <AppText style={styles.closeText}> X </AppText>
-          </TouchableOpacity>
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity
+                style={[styles.buttonDesign, istyle]}
+                onPress={() => {
+                  navigation.goBack();
+                }}
+              >
+                <AppText style={styles.closeText}> X </AppText>
+              </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.buttonDesign, mstyle]}
-            onPress={() => {
-              if (fDate != "") {
-                // route.params.setTodo(todoInput);
-                navigation.navigate({
-                  name: "TodoList",
-                  params: {
-                    input: todoInput,
-                    times: fDate,
-                    curDate: new Date().toString().slice(0, 24),
-                  },
-                  merge: true,
-                });
-              } else {
-                Alert.alert("Please select the data ");
-              }
-            }}
-          >
-            <AppText style={styles.crctText}>✓</AppText>
-          </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.buttonDesign, mstyle]}
+                onPress={() => {
+                  if (fDate != "") {
+                    // route.params.setTodo(todoInput);
+                    navigation.navigate({
+                      name: "TodoList",
+                      params: {
+                        input: todoInput,
+                        times: fDate,
+                        curDate: new Date().toString().slice(0, 24),
+                      },
+                      merge: true,
+                    });
+                  } else {
+                    Alert.alert("Please select the data ");
+                  }
+                }}
+              >
+                <AppText style={styles.crctText}>✓</AppText>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   boxContainer: {
-    height: 320,
-    width: 350,
-    backgroundColor: "#F3F8FF",
+    height: height * 0.4,
+    width: width * 0.9,
+    backgroundColor: "#FFF",
     borderRadius: 30,
     justifyContent: "space-evenly",
     alignItems: "center",
+    shadowOpacity: 0.88,
+    shadowRadius: 10,
+    shadowColor: "#2F89FC",
+    shadowOffset: {
+      height: 20,
+      width: 0,
+    },
+    elevation: 5,
+  },
+  box: {
+    marginTop: 25,
+    alignItems: "center",
+  },
+  calendar: {
+    margin: 10,
+    borderRadius: 30,
+    marginTop: 30,
+    elevation: 4,
   },
   buttonDesign: {
     justifyContent: "center",
@@ -180,14 +234,14 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#C6CFFF",
+    height: height,
+    width: width,
+    backgroundColor: "#B0DAFF",
   },
   inputStyle: {
     width: 250,
     height: 50,
-    backgroundColor: "#C6CFFF",
+    backgroundColor: "#B0DAFF",
     padding: 10,
     fontSize: 16,
     borderRadius: 10,

@@ -5,6 +5,7 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 
 import {
@@ -18,12 +19,15 @@ import Calendar from "react-native-calendars/src/calendar";
 import { AntDesign } from "@expo/vector-icons";
 import colors from "../config/colors";
 import AppText from "./AppText";
+import { ScrollView } from "react-native";
+
+const { width, height } = Dimensions.get("screen");
 
 export default function EditModel({ navigation, route }) {
   const { id, completed, curDate, finishDate, title } = route.params;
   const finish = new Date(finishDate.slice(0, 16));
 
-  const [editTodo, setEditTodo] = useState("");
+  const [editTodo, setEditTodo] = useState(title);
   const [betweenDates, setBetweenDates] = useState({});
   const [endDate, setEndDate] = useState(
     new Date(finish.setDate(finish.getDate() + 1)).toISOString().slice(0, 10)
@@ -63,11 +67,11 @@ export default function EditModel({ navigation, route }) {
   };
 
   const istyle = {
-    backgroundColor: "#C6CFFF",
+    backgroundColor: "#B0DAFF",
   };
 
   const mstyle = {
-    backgroundColor: "#C6CFFF",
+    backgroundColor: "#B0DAFF",
   };
 
   const Edit = (val) => {
@@ -85,83 +89,87 @@ export default function EditModel({ navigation, route }) {
     return null;
   }
   return (
-    <View style={styles.container}>
-      <View style={styles.boxContainer}>
-        <AppText style={{ fontFamily: "Poppins_300Light" }}>
-          Created on: {curDate}
-        </AppText>
-        <View style={styles.top}>
-          <AppText style={styles.textDesign}>Edit Todo</AppText>
-          <AntDesign name="edit" size={30} color={colors.dark}></AntDesign>
+    <ScrollView>
+      <View style={styles.container}>
+        <View style={styles.calendar}>
+          <Calendar
+            style={styles.calendar}
+            minDate={curDate}
+            onDayPress={changeDate}
+            markingType={"period"}
+            markedDates={{
+              ...betweenDates,
+            }}
+          />
         </View>
+        <View style={styles.box}>
+          <View style={styles.boxContainer}>
+            <AppText style={{ fontFamily: "Poppins_300Light" }}>
+              Created on: {curDate}
+            </AppText>
+            <View style={styles.top}>
+              <AppText style={styles.textDesign}>Edit Todo</AppText>
+              <AntDesign name="edit" size={30} color={colors.dark}></AntDesign>
+            </View>
 
-        <TextInput
-          style={styles.inputStyle}
-          placeholder="Edit Todo"
-          onChangeText={Edit}
-          value={editTodo}
-        ></TextInput>
-        <View style={styles.buttonGroup}>
-          <TouchableOpacity
-            style={[styles.buttonDesign, istyle]}
-            onPress={() => {
-              navigation.goBack();
-            }}
-          >
-            <AppText style={styles.closeText}> X </AppText>
-          </TouchableOpacity>
+            <TextInput
+              style={styles.inputStyle}
+              placeholder="Edit Todo"
+              onChangeText={Edit}
+              value={editTodo}
+            ></TextInput>
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity
+                style={[styles.buttonDesign, istyle]}
+                onPress={() => {
+                  navigation.goBack();
+                }}
+              >
+                <AppText style={styles.closeText}> X </AppText>
+              </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.buttonDesign, mstyle]}
-            onPress={() => {
-              navigation.navigate({
-                name: "TodoList",
-                params: {
-                  EditInput: editTodo === "" ? title : editTodo,
-                  Editid: id,
-                  completed: completed,
-                  endDate: new Date(endDate).toString().slice(0, 24),
-                },
+              <TouchableOpacity
+                style={[styles.buttonDesign, mstyle]}
+                onPress={() => {
+                  navigation.navigate({
+                    name: "TodoList",
+                    params: {
+                      EditInput: editTodo === "" ? title : editTodo,
+                      Editid: id,
+                      completed: completed,
+                      endDate: new Date(endDate).toString().slice(0, 24),
+                    },
 
-                merge: true,
-              });
-            }}
-          >
-            <AppText style={styles.crctText}>✓</AppText>
-          </TouchableOpacity>
+                    merge: true,
+                  });
+                }}
+              >
+                <AppText style={styles.crctText}>✓</AppText>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </View>
-
-      <Calendar
-        style={styles.calendar}
-        minDate={curDate}
-        onDayPress={changeDate}
-        // maxDate={finishDate}
-        markingType={"period"}
-        markedDates={{
-          // [start]: {
-          //   startingDay: true,
-          //   color: "dodgerblue",
-          // },
-          ...betweenDates,
-          // [end]: {
-          //   endingDay: true,
-          //   color: "dodgerblue",
-          // },
-        }}
-      />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   boxContainer: {
-    height: 320,
-    width: 350,
-    backgroundColor: "#F3F8FF",
+    height: height * 0.4,
+    width: width * 0.9,
+    backgroundColor: "#fff",
     borderRadius: 30,
     justifyContent: "space-evenly",
     alignItems: "center",
+    shadowOpacity: 0.88,
+    shadowRadius: 10,
+    shadowColor: "#2F89FC",
+    shadowOffset: {
+      height: 20,
+      width: 0,
+    },
+    elevation: 5,
   },
   buttonDesign: {
     justifyContent: "center",
@@ -180,21 +188,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
   },
   calendar: {
-    borderRadius: 10,
     elevation: 4,
-    margin: 40,
-    width: 300,
+    margin: 10,
+
+    marginTop: 30,
   },
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#B0DAFF",
+    height: height,
+    width: width,
+  },
+  box: {
+    marginTop: 25,
     alignItems: "center",
-    backgroundColor: "#C6CFFF",
   },
   inputStyle: {
     width: 300,
     height: 50,
-    backgroundColor: "#C6CFFF",
+    backgroundColor: "#B0DAFF",
     padding: 10,
     fontSize: 16,
     borderRadius: 10,

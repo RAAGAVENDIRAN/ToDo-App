@@ -75,6 +75,24 @@ export default function Trash({ navigation, route }) {
     }
   };
 
+  //delete the particular item in Trash
+
+  const deleteFromTrashAsync = (id, completed) => {
+    let newTrash = trash.filter((item) => {
+      if (item.id !== id) {
+        return item;
+      }
+    });
+
+    storeData({
+      userId: {
+        completedTodo: completedTodo,
+        pendingTodo: pendingTodo,
+        trashTodo: newTrash,
+      },
+    });
+  };
+
   //searching
   const Searching = (newtext) => {
     setSearch(newtext);
@@ -135,39 +153,41 @@ export default function Trash({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.Headercontainer, { flexDirection: "row" }]}>
-        <MaterialIcons
-          name="arrow-back"
-          size={30}
-          onPress={() => {
-            navigation.goBack();
-          }}
-        />
-        <AppText style={styles.DesignText}> TRASH</AppText>
-        <MaterialIcons
-          name="delete"
-          style={styles.Headericon}
-          size={30}
-          color="black"
-          onPress={ClearTrash}
+      <View style={styles.Top}>
+        <View style={[styles.Headercontainer, { flexDirection: "row" }]}>
+          <MaterialIcons
+            name="arrow-back"
+            size={30}
+            onPress={() => {
+              navigation.goBack();
+            }}
+          />
+          <AppText style={styles.DesignText}> TRASH</AppText>
+          <MaterialIcons
+            name="delete"
+            style={styles.Headericon}
+            size={30}
+            color="black"
+            onPress={ClearTrash}
+          />
+        </View>
+
+        <SearchToDo
+          value={search}
+          placeholder={"Search Here"}
+          onChangeText={Searching}
         />
       </View>
-
-      <SearchToDo
-        value={search}
-        placeholder={"Search Here"}
-        onChangeText={Searching}
-      />
-
       <FlatList
         data={trash}
         keyExtractor={(item) => item.id}
-        style={{ backgroundColor: "#C6CFFF" }}
+        style={{ backgroundColor: "#fff" }}
         renderItem={({ item }) => (
           <DisplayListTrash
             data={trashTodo}
             item={item}
             remove={(id, completed) => removeFromTrashAsync(id, completed)}
+            deleteTrash={(id, completed) => deleteFromTrashAsync(id, completed)}
           />
         )}
       />
@@ -180,7 +200,9 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     height: 80,
     width: "100%",
-    backgroundColor: "#C6CFFF",
+  },
+  Top: {
+    backgroundColor: "#B0DAFF",
   },
 
   container: {

@@ -99,6 +99,7 @@ function DisplayListPending({
       height: itemHeight.value,
       marginVertical: marginVertical.value,
       opacity: opacity.value,
+      marginBottom: 13,
     };
   });
 
@@ -130,6 +131,7 @@ function DisplayListPending({
                   }}
                 >
                   <RadioButton
+                    color="#2F89FC"
                     style={styles.check}
                     status={checks[isChecked]}
                     onPress={() => {
@@ -178,19 +180,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   check: {
-    backgroundColor: "#391e7e",
     flex: 1,
+    marginRight: 20,
   },
   container: {
     height: 100,
-    backgroundColor: "#F3F8FF",
+    backgroundColor: "#fff",
     justifyContent: "space-evenly",
-
     borderRadius: 10,
-    borderWidth: 0.5,
-    marginBottom: 10,
+    marginVertical: 10,
     width: "90%",
     alignSelf: "center",
+    shadowOpacity: 0.88,
+    shadowRadius: 10,
+    shadowColor: "#2F89FC",
+    shadowOffset: {
+      height: 20,
+      width: 0,
+    },
+    elevation: 5,
   },
   date: {
     fontFamily: "Poppins_300Light_Italic",

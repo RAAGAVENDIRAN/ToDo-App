@@ -144,7 +144,7 @@ function SignUp({ navigation, route }) {
             <View style={[styles.item, { zIndex: data.length }]}>
               <LinearGradient
                 style={StyleSheet.absoluteFill}
-                colors={["#E8D3FF", "#C6CFFF", "#DEECFF"]}
+                colors={["#B0DAFF", "#B0DAFF", "#B0DAFF"]}
               />
             </View>
           </View>
@@ -181,9 +181,7 @@ function SignUp({ navigation, route }) {
             <View style={styles.wrongText}>
               {checkValidEmail ? (
                 <Text style={styles.textFailed}>Wrong Format Email</Text>
-              ) : (
-                <Text></Text>
-              )}
+              ) : null}
             </View>
 
             <Iconic
@@ -198,7 +196,12 @@ function SignUp({ navigation, route }) {
           </View>
 
           <View style={styles.Last}>
-            <AppButton style={styles.button} color="#DEECFF" title="SIGN UP" />
+            <AppButton
+              style={styles.button}
+              color="#B0DAFF"
+              title="SIGN UP"
+              onPress={handleLogin}
+            />
           </View>
         </View>
         <View style={styles.LastText}>
@@ -208,7 +211,7 @@ function SignUp({ navigation, route }) {
               onPress={() => {
                 navigation.goBack();
               }}
-              style={{ color: "purple", fontFamily: "Poppins_600SemiBold" }}
+              style={{ color: "#B0DAFF", fontFamily: "Poppins_600SemiBold" }}
             >
               Sign in
             </AppText>
@@ -221,6 +224,7 @@ function SignUp({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
   },
   item: {
     height: 250,
