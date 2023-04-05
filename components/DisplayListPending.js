@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { RadioButton } from "react-native-paper";
+//Default Imports
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,8 +8,11 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
 } from "react-native";
-import { FontAwesome5 } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
 
+//Third-Party Imports
+import { FontAwesome5 } from "@expo/vector-icons";
+import { RadioButton } from "react-native-paper";
 import Animated, {
   useAnimatedGestureHandler,
   useAnimatedStyle,
@@ -18,39 +21,38 @@ import Animated, {
   runOnJS,
   withSpring,
 } from "react-native-reanimated";
+
 import {
   GestureHandlerRootView,
   PanGestureHandler,
-  Swipeable,
 } from "react-native-gesture-handler";
-import { Button } from "@rneui/themed";
+
+//Components Imports
 import AppText from "./AppText";
+import { markTodo, moveToTrash } from "../features/actions";
 
 const checks = ["unchecked", "checked"];
-
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-
 const LIST_ITEM_HEIGHT = 90;
 
-function DisplayListPending({
-  item,
-  MoveToTrashAsync,
-  navigationTo,
-  navigation,
-  scrollLock,
-  PenToComAsync,
-}) {
+function DisplayListPending({ item, navigation, scrollLock }) {
+  //redux
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.currentUser);
+
+  //datas
+  const userId = user.userId;
+
+  //state
+
   const [isChecked, setChecked] = useState(item.completed ? 1 : 0);
+  const [callDelete, setCallDelete] = useState(false);
 
   const TRANSLATE_X_THRESHOLD = SCREEN_WIDTH * 0.3;
   const translateX = useSharedValue(0);
   const itemHeight = useSharedValue(100);
   const marginVertical = useSharedValue(5);
   const opacity = useSharedValue(1);
-
-  const Unchecked = () => {
-    PenToComAsync(item.id);
-  };
 
   const pan = useAnimatedGestureHandler({
     onStart: (event, context) => {
@@ -68,7 +70,8 @@ function DisplayListPending({
         marginVertical.value = withTiming(0);
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
-            runOnJS(MoveToTrashAsync)(item.id, "no", item.createDate);
+            // runOnJS(MoveToTrashAsync)(item.id, "no", item.createDate);
+            runOnJS(setCallDelete)(true);
             runOnJS(scrollLock)(true);
           }
         });
@@ -103,11 +106,28 @@ function DisplayListPending({
     };
   });
 
+  //
+  useEffect(() => {
+    if (callDelete) {
+      dispatch(moveToTrash({ todo: item }));
+    }
+  }, [callDelete]);
+
   return (
     <>
       <TouchableWithoutFeedback
         onPress={() => {
-          navigationTo(item.id, "no", item.createDate, item.date, item.title);
+          navigation.navigate({
+            name: "EditModel",
+            params: {
+              id: item.id,
+              completed: false,
+              curDate: item.createDate,
+              finishDate: item.date,
+              title: item.title,
+            },
+            merge: true,
+          });
         }}
       >
         <GestureHandlerRootView>
@@ -134,11 +154,9 @@ function DisplayListPending({
                     color="#2F89FC"
                     style={styles.check}
                     status={checks[isChecked]}
-                    onPress={() => {
-                      {
-                        setChecked(isChecked ^ 1);
-                        Unchecked();
-                      }
+                    onPress={async () => {
+                      setChecked(isChecked ^ 1);
+                      dispatch(markTodo({ todo: item }));
                     }}
                   />
 

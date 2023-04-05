@@ -1,3 +1,4 @@
+//default Imports
 import React, { useState, useEffect } from "react";
 import {
   Text,
@@ -10,23 +11,38 @@ import {
   Dimensions,
 } from "react-native";
 
+//Third-Party Imports
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Calendar from "react-native-calendars/src/calendar";
-
 import {
   useFonts,
   Poppins_400Regular,
   Poppins_300Light,
 } from "@expo-google-fonts/poppins";
-
 import { AntDesign } from "@expo/vector-icons";
+
+//redux Imports
+import { useDispatch, useSelector } from "react-redux";
+
+//Components Imports
+import { addTodo } from "../features/actions";
 import colors from "../config/colors";
 import AppText from "./AppText";
 
 const { width, height } = Dimensions.get("screen");
 
 export default function InputModel({ navigation, route }) {
-  const { todo } = route.params;
+  //redux
+  const dispatch = useDispatch();
+
+  const completedTodo = useSelector((state) => state.todo.completedTodo);
+  const pendingTodo = useSelector((state) => state.todo.pendingTodo);
+  const user = useSelector((state) => state.user.currentUser);
+
+  //datas
+  const userId = user.userId;
+
+  //states
   const [todoInput, setTodoInput] = useState("");
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState("date");
@@ -39,7 +55,7 @@ export default function InputModel({ navigation, route }) {
   }, [markDate]);
 
   const calendarDate = () => {
-    todo.map((item) => {
+    [...completedTodo, ...pendingTodo].map((item) => {
       if (item.completed == true) {
         markDate[new Date(item.date).toISOString().slice(0, 10)] = {
           marked: true,
@@ -159,15 +175,26 @@ export default function InputModel({ navigation, route }) {
                 style={[styles.buttonDesign, mstyle]}
                 onPress={() => {
                   if (fDate != "") {
-                    // route.params.setTodo(todoInput);
+                    if (todoInput.trim() === "") return;
+                    if (todoInput.length > 3) {
+                      let newtodos = {
+                        userid: userId,
+                        id: Math.random(),
+                        title: todoInput.trim(),
+                        completed: false,
+                        date: fDate,
+                        createDate: new Date().toString().slice(0, 24),
+                      };
+
+                      dispatch(addTodo({ newTodo: newtodos }));
+                    } else {
+                      Alert.alert("OOPS!", "Todos must be over 3 chars long", [
+                        { text: "Understood" },
+                      ]);
+                    }
+
                     navigation.navigate({
                       name: "TodoList",
-                      params: {
-                        input: todoInput,
-                        times: fDate,
-                        curDate: new Date().toString().slice(0, 24),
-                      },
-                      merge: true,
                     });
                   } else {
                     Alert.alert("Please select the data ");
@@ -207,7 +234,7 @@ const styles = StyleSheet.create({
   },
   calendar: {
     margin: 10,
-    borderRadius: 30,
+    width: width * 0.9,
     marginTop: 30,
     elevation: 4,
   },
@@ -237,6 +264,8 @@ const styles = StyleSheet.create({
     height: height,
     width: width,
     backgroundColor: "#B0DAFF",
+
+    alignItems: "center",
   },
   inputStyle: {
     width: 250,

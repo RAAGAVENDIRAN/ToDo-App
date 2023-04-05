@@ -1,48 +1,49 @@
+//default Imports
+
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, ToastAndroid, Text } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  ToastAndroid,
+  Text,
+  useWindowDimensions,
+} from "react-native";
+
+//third-Party Imports
 import { LinearGradient } from "expo-linear-gradient";
 import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
 import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
-import { useWindowDimensions } from "react-native";
 import Iconic from "../components/Iconic";
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+//redux imports
+import { useDispatch, useSelector } from "react-redux";
+import { currentUser, setUser } from "../features/actions";
+
 const data = [""];
+
 function Login({ navigation, route }) {
+  // redux
+  const dispatch = useDispatch();
+  const users = useSelector((state) => state.user.users);
+
+  //states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userarr, setUserarr] = useState([]);
   const [seePassword, setSeePassword] = useState(true);
   const [checkValidEmail, setCheckValidEmail] = useState(false);
   const { width, height } = useWindowDimensions();
-
-  useEffect(() => {
-    if (route.params?.val) setUserarr([...userarr, route.params?.val]);
-  }, [route.params?.val]);
-
-  //fonts
-  // let [fontsLoaded, error] = useFonts({
-  //   Poppins_400Regular,
-  // });
-
-  // if (!fontsLoaded) {
-  //   return null;
-  // }
 
   useEffect(() => {
     const getData = async () => {
       try {
         const jsonValue = await AsyncStorage.getItem("@users");
         let users = JSON.parse(jsonValue).users;
-        console.log(users);
         if (users) {
-          setUserarr([...users]);
-        } else {
-          setUserarr([]);
+          dispatch(setUser({ user: users }));
         }
-        // return jsonValue != null ? JSON.parse(jsonValue) : null;
       } catch (e) {
         // error reading value
       }
@@ -50,16 +51,18 @@ function Login({ navigation, route }) {
     getData();
   }, []);
 
-  const clearAll = async () => {
-    try {
-      await AsyncStorage.clear();
-    } catch (e) {
-      // clear error
-    }
+  //cleaning the Async Storage
+  // const clearAll = async () => {
+  //   try {
+  //     await AsyncStorage.clear();
+  //   } catch (e) {
+  //     // clear error
+  //   }
 
-    console.log("Done.");
-  };
+  //   console.log("Done.");
+  // };
 
+  //Validate Email Function
   const validateEmail = (text) => {
     let re = /\S+@\S+\.\S+/;
     let regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
@@ -72,17 +75,19 @@ function Login({ navigation, route }) {
     }
   };
 
+  //Authentication Function
   const Auth = () => {
     let isValid = false;
-    userarr.filter((item) => {
+    users.filter((item) => {
       if (item.email === email) {
         if (item.password === password) {
           isValid = true;
           setPassword("");
           setEmail("");
+          dispatch(currentUser({ currentUser: item }));
           navigation.navigate({
             name: "TodoList",
-            params: { user: item },
+            // params: { user: item },
           });
         }
       }
@@ -99,7 +104,6 @@ function Login({ navigation, route }) {
             <View style={[styles.item, { zIndex: data.length }]}>
               <LinearGradient
                 style={StyleSheet.absoluteFill}
-                // colors={["#E8D3FF", "#C6CFFF", "#DEECFF"]}
                 colors={["#B0DAFF", "#B0DAFF", "#B0DAFF"]}
               />
             </View>
@@ -158,7 +162,6 @@ function Login({ navigation, route }) {
               onPress={() => {
                 navigation.navigate({
                   name: "SignUp",
-                  params: { userarr: userarr },
                 });
               }}
               style={{ color: "#B0DAFF", fontFamily: "Poppins_600SemiBold" }}

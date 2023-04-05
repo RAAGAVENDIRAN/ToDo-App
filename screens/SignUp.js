@@ -14,25 +14,34 @@ import AppButton from "../components/AppButton";
 import Iconic from "../components/Iconic";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useStore, useSelector, useDispatch } from "react-redux";
+import { addUser } from "../features/actions";
 
 const data = [""];
 
-function SignUp({ navigation, route }) {
-  const { userarr } = route.params;
+function SignUp({ navigation }) {
+  //redux
+  const dispatch = useDispatch();
+  const users = useSelector((state) => state.user.users);
+
+  //state
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [seePassword, setSeePassword] = useState(true);
   const [checkValidEmail, setCheckValidEmail] = useState(false);
 
+  //default
   const { width, height } = useWindowDimensions();
+  const id = Math.random() * Math.random();
 
+  //storing Data in ASync
   const storeData = async (value) => {
     try {
       const jsonValue = JSON.stringify(value);
       await AsyncStorage.mergeItem("@users", jsonValue);
     } catch (e) {
-      /* console.log(e); */
+      console.log(e);
     }
   };
 
@@ -88,7 +97,7 @@ function SignUp({ navigation, route }) {
   };
 
   const handleLogin = () => {
-    userarr.filter((item) => {
+    users.filter((item) => {
       if (item.username === username || item.email === email) {
         ToastAndroid.show(
           "Username or email already exists",
@@ -101,26 +110,28 @@ function SignUp({ navigation, route }) {
     if (!checkPassword) {
       storeData({
         users: [
-          ...userarr,
+          ...users,
           {
             username: username,
             email: email,
             password: password,
-            userId: Math.random() * Math.random(),
+            userId: id,
           },
         ],
       });
 
-      navigation.navigate({
-        name: "Login",
-        params: {
-          val: {
+      dispatch(
+        addUser({
+          user: {
             username: username,
             email: email,
             password: password,
-            userId: Math.random() * Math.random(),
+            userId: id,
           },
-        },
+        })
+      );
+      navigation.navigate({
+        name: "Login",
       });
     } else {
       alert(checkPassword);

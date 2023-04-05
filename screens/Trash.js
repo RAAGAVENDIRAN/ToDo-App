@@ -1,30 +1,40 @@
+// default imports
 import React, { useEffect, useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
-import {
-  StyleSheet,
-  View,
-  Text,
-  FlatList,
-  Alert,
-  Dimensions,
-  TouchableWithoutFeedback,
-} from "react-native";
-import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
+import { StyleSheet, View, FlatList, Alert } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
 
+//third part IMports
+import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
+import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+//Components Imports
 import AppText from "../components/AppText";
 import DisplayListTrash from "../components/DisplayListTrash";
 import SearchToDo from "../components/SearchToDo";
+import { clearTrash, serachTodo } from "../features/actions";
+
+let arr = [];
 
 export default function Trash({ navigation, route }) {
+  //redux
+  const user = useSelector((state) => state.user.currentUser);
+  const dispatch = useDispatch();
+
+  const completedTodo = useSelector((state) => state.todo.completedTodo);
+  const pendingTodo = useSelector((state) => state.todo.pendingTodo);
+  const trashTodo = useSelector((state) => state.todo.trashTodo);
+  // let temp = trashTodo;
+  // arr = temp;
+
+  //datas
+  const userId = user.userId;
+
+  //states
   const [search, setSearch] = useState("");
-  const { trashTodo, completedTodo, pendingTodo, userId } = route.params;
-  const trashTo = trashTodo;
-  const [trash, setTrash] = useState(trashTo);
+  const [retrieve, setRetrieve] = useState(false);
 
   //   store data to async storage
-
   const storeData = async (value) => {
     try {
       const jsonValue = JSON.stringify(value);
@@ -35,119 +45,61 @@ export default function Trash({ navigation, route }) {
     }
   };
 
-  //fonts
-  let [fontsLoaded] = useFonts({ Poppins_400Regular });
+  //get Data of trash
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem(`@todo ${userId}`);
+        const value = JSON.parse(jsonValue);
 
-  const removeFromTrashAsync = (id, completed) => {
-    let takeData;
-    if (completed) {
-      let newTrash = trash.filter((item) => {
-        if (item.id === id) {
-          takeData = item;
-          return;
-        }
-        return item;
-      });
+        let tempTrashTodo = [];
+        if (value && value.userId.trashTodo)
+          tempTrashTodo = value.userId.trashTodo;
 
-      storeData({
-        userId: {
-          completedTodo: [...completedTodo, takeData],
-          pendingTodo: pendingTodo,
-          trashTodo: newTrash,
-        },
-      });
-    } else {
-      let newTrash = trash.filter((item) => {
-        if (item.id === id) {
-          takeData = item;
-          return;
-        }
-        return item;
-      });
+        arr = tempTrashTodo;
+        setRetrieve(true);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    getData();
+  }, []);
 
+  //setting in async storage
+  useEffect(() => {
+    console.log("In DB Setter");
+    if (retrieve) {
+      console.log("Storing Data");
       storeData({
         userId: {
           completedTodo: completedTodo,
-          pendingTodo: [...pendingTodo, takeData],
-          trashTodo: newTrash,
+          pendingTodo: pendingTodo,
+          trashTodo: trashTodo,
         },
       });
+      setRetrieve(false);
     }
-  };
+  }, [retrieve]);
 
-  //delete the particular item in Trash
+  //fonts
+  let [fontsLoaded] = useFonts({ Poppins_400Regular });
 
-  const deleteFromTrashAsync = (id, completed) => {
-    let newTrash = trash.filter((item) => {
-      if (item.id !== id) {
-        return item;
-      }
-    });
-
-    storeData({
-      userId: {
-        completedTodo: completedTodo,
-        pendingTodo: pendingTodo,
-        trashTodo: newTrash,
-      },
-    });
+  const callDB = () => {
+    setRetrieve(true);
   };
 
   //searching
   const Searching = (newtext) => {
     setSearch(newtext);
 
-    if (trashTo.length) {
-      searchFilterFunction(trashTo, newtext);
-    }
-  };
-
-  //search Filter Function
-  const searchFilterFunction = (array, newtext) => {
-    console.log(array);
-    let newData = array.filter((item) => {
-      let itemData = item.title ? item.title.toUpperCase() : "".toUpperCase();
-      let textData = newtext.toUpperCase();
-      return itemData.indexOf(textData) > -1;
-    });
-
-    setTrash(newData);
-  };
-
-  //clear trash
-  const ClearTrash = async () => {
-    if (trashTo.length > 0) {
-      Alert.alert("Are you Sure?", "Your Trash  will be deleted", [
-        {
-          text: "Confirm",
-          onPress: () => {
-            setTrash([]);
-            storeData({
-              userId: {
-                completedTodo: completedTodo,
-                pendingTodo: pendingTodo,
-                trashTodo: [],
-              },
-            });
-          },
-        },
-        {
-          text: "Cancel",
-
-          style: "cancel",
-        },
-      ]);
-    } else {
-      Alert.alert("OOPS!", "EMPTY", [
-        {
-          text: "Confirm",
-        },
-        {
-          text: "Cancel",
-
-          style: "cancel",
-        },
-      ]);
+    if (arr.length) {
+      dispatch(
+        serachTodo({
+          array: [...arr],
+          bool: "trash",
+          newtext: newtext,
+        })
+      );
     }
   };
 
@@ -168,7 +120,34 @@ export default function Trash({ navigation, route }) {
             style={styles.Headericon}
             size={30}
             color="black"
-            onPress={ClearTrash}
+            onPress={() => {
+              if (trashTodo.length > 0) {
+                Alert.alert("Are you Sure?", "Your Trash  will be deleted", [
+                  {
+                    text: "Confirm",
+                    onPress: () => {
+                      dispatch(clearTrash());
+                    },
+                  },
+                  {
+                    text: "Cancel",
+
+                    style: "cancel",
+                  },
+                ]);
+              } else {
+                Alert.alert("OOPS!", "EMPTY", [
+                  {
+                    text: "Confirm",
+                  },
+                  {
+                    text: "Cancel",
+
+                    style: "cancel",
+                  },
+                ]);
+              }
+            }}
           />
         </View>
 
@@ -179,16 +158,11 @@ export default function Trash({ navigation, route }) {
         />
       </View>
       <FlatList
-        data={trash}
+        data={trashTodo}
         keyExtractor={(item) => item.id}
         style={{ backgroundColor: "#fff" }}
         renderItem={({ item }) => (
-          <DisplayListTrash
-            data={trashTodo}
-            item={item}
-            remove={(id, completed) => removeFromTrashAsync(id, completed)}
-            deleteTrash={(id, completed) => deleteFromTrashAsync(id, completed)}
-          />
+          <DisplayListTrash data={trashTodo} item={item} callDB={callDB} />
         )}
       />
     </View>

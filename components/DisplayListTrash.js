@@ -1,4 +1,5 @@
-import { MaterialIcons } from "@expo/vector-icons";
+//Default Imports
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -7,8 +8,10 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
 } from "react-native";
-import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
+import { useDispatch, useSelector } from "react-redux";
 
+//Third-Party Imports
+import { MaterialIcons } from "@expo/vector-icons";
 import Animated, {
   useAnimatedGestureHandler,
   useAnimatedStyle,
@@ -22,13 +25,26 @@ import {
   PanGestureHandler,
 } from "react-native-gesture-handler";
 
+//Compoenents Import
 import AppText from "./AppText";
+import { deleteFromTrash, restoreFromTrash } from "../features/actions";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const LIST_ITEM_HEIGHT = 80;
 
-function DisplayListTrash({ item, remove, deleteTrash }) {
+function DisplayListTrash({ item, callDB }) {
+  //redux
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.currentUser);
+
+  //datas
+  const userId = user.userId;
+
+  //state
+  const [callRestore, setCallRestore] = useState(false);
+  const [callDelete, setCallDelete] = useState(false);
+
   const TRANSLATE_X_THRESHOLD = SCREEN_WIDTH * 0.3;
   const translateX = useSharedValue(0);
   const itemHeight = useSharedValue(80);
@@ -55,7 +71,8 @@ function DisplayListTrash({ item, remove, deleteTrash }) {
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
             console.log("Delete Called");
-            runOnJS(remove)(item.id, item.completed);
+            runOnJS(setCallRestore)(true);
+            // runOnJS(remove)(item.id, item.completed);
           }
         });
       } else {
@@ -68,8 +85,9 @@ function DisplayListTrash({ item, remove, deleteTrash }) {
         marginVertical.value = withTiming(0);
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
-            console.log("Delete Called");
-            runOnJS(deleteTrash)(item.id, item.completed);
+            console.log("Delete ");
+            runOnJS(setCallDelete)(true);
+            // runOnJS(deleteTrash)(item.id, item.completed);
           }
         });
       }
@@ -107,14 +125,21 @@ function DisplayListTrash({ item, remove, deleteTrash }) {
     };
   });
 
-  // const rTaskContainerStyleDelete = useAnimatedStyle(() => {
-  //   return {
-  //     height: itemHeight.value,
-  //     marginVertical: marginVertical.value,
-  //     opacity: opacity.value,
-  //     marginBottom: 13,
-  //   };
-  // });
+  //
+  useEffect(() => {
+    if (callDelete) {
+      dispatch(deleteFromTrash({ todo: item }));
+      callDB();
+    }
+  }, [callDelete]);
+
+  //
+  useEffect(() => {
+    if (callRestore) {
+      dispatch(restoreFromTrash({ todo: item }));
+      callDB();
+    }
+  }, [callRestore]);
 
   return (
     <>

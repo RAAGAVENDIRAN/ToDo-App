@@ -1,5 +1,8 @@
-import React, { Children } from "react";
+//Default Imports
+import React from "react";
 import { Text } from "react-native";
+
+//Third Party Imports
 import {
   useFonts,
   Poppins_100Thin,

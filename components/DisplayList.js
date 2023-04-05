@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+//Default Imports
+import React, { useState, useEffect } from "react";
 import { RadioButton } from "react-native-paper";
 import {
   View,
@@ -6,8 +7,10 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
 } from "react-native";
-import { FontAwesome5 } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
 
+//Third-Party Imports
+import { FontAwesome5 } from "@expo/vector-icons";
 import Animated, {
   useAnimatedGestureHandler,
   useAnimatedStyle,
@@ -21,20 +24,25 @@ import {
   PanGestureHandler,
 } from "react-native-gesture-handler";
 
+//Components Imorts
 import AppText from "./AppText";
+import { markTodo, moveToTrash } from "../features/actions";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const LIST_ITEM_HEIGHT = 90;
 
-function DisplayList({
-  item,
-  MoveToTrashAsync,
-  navigationTo,
-  ComToPenAsync,
-  scrollLock,
-}) {
+function DisplayList({ item, navigation, scrollLock }) {
+  //redux
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.currentUser);
+
+  //datas
+  const userId = user.userId;
+
+  //state
   const [isChecked, setChecked] = useState(item.completed ? 1 : 0);
+  const [callDelete, setCallDelete] = useState(false);
 
   const checks = ["unchecked", "checked"];
   const TRANSLATE_X_THRESHOLD = SCREEN_WIDTH * 0.3;
@@ -42,10 +50,6 @@ function DisplayList({
   const itemHeight = useSharedValue(100);
   const marginVertical = useSharedValue(5);
   const opacity = useSharedValue(1);
-
-  const Checked = () => {
-    ComToPenAsync(item.id);
-  };
 
   const pan = useAnimatedGestureHandler({
     onStart: (event, context) => {
@@ -64,7 +68,7 @@ function DisplayList({
         marginVertical.value = withTiming(0);
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
-            runOnJS(MoveToTrashAsync)(item.id, "yes");
+            runOnJS(setCallDelete)(true);
 
             runOnJS(scrollLock)(true);
           }
@@ -101,11 +105,28 @@ function DisplayList({
     };
   });
 
+  //
+  useEffect(() => {
+    if (callDelete) {
+      dispatch(moveToTrash({ todo: item }));
+    }
+  }, [callDelete]);
+
   return (
     <>
       <TouchableWithoutFeedback
         onPress={() => {
-          navigationTo(item.id, "yes", item.createDate, item.date, item.title);
+          navigation.navigate({
+            name: "EditModel",
+            params: {
+              id: item.id,
+              completed: true,
+              curDate: item.createDate,
+              finishDate: item.date,
+              title: item.title,
+            },
+            merge: true,
+          });
         }}
       >
         <GestureHandlerRootView>
@@ -134,11 +155,9 @@ function DisplayList({
                     color="#2F89FC"
                     style={styles.check}
                     status={checks[isChecked]}
-                    onPress={() => {
-                      {
-                        setChecked(isChecked ^ 1);
-                        Checked();
-                      }
+                    onPress={async () => {
+                      setChecked(isChecked ^ 1);
+                      dispatch(markTodo({ todo: item }));
                     }}
                   />
 

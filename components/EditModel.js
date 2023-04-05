@@ -1,29 +1,36 @@
+//Default Import
 import React, { useState, useEffect } from "react";
 import {
-  Text,
   StyleSheet,
   View,
   TextInput,
   TouchableOpacity,
   Dimensions,
+  ScrollView,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
+//ThirdParty Imports
 import {
   useFonts,
   Poppins_400Regular,
   Poppins_300Light,
 } from "@expo-google-fonts/poppins";
-
 import Calendar from "react-native-calendars/src/calendar";
-
 import { AntDesign } from "@expo/vector-icons";
+
+//Components Import
 import colors from "../config/colors";
 import AppText from "./AppText";
-import { ScrollView } from "react-native";
+import { todoEdit } from "../features/actions";
 
 const { width, height } = Dimensions.get("screen");
 
 export default function EditModel({ navigation, route }) {
+  //redux
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.currentUser);
+
   const { id, completed, curDate, finishDate, title } = route.params;
   const finish = new Date(finishDate.slice(0, 16));
 
@@ -131,16 +138,16 @@ export default function EditModel({ navigation, route }) {
               <TouchableOpacity
                 style={[styles.buttonDesign, mstyle]}
                 onPress={() => {
+                  dispatch(
+                    todoEdit({
+                      id: id,
+                      title: editTodo === "" ? title : editTodo,
+                      date: new Date(endDate).toString().slice(0, 24),
+                      completed: completed,
+                    })
+                  );
                   navigation.navigate({
                     name: "TodoList",
-                    params: {
-                      EditInput: editTodo === "" ? title : editTodo,
-                      Editid: id,
-                      completed: completed,
-                      endDate: new Date(endDate).toString().slice(0, 24),
-                    },
-
-                    merge: true,
                   });
                 }}
               >
@@ -190,8 +197,6 @@ const styles = StyleSheet.create({
   calendar: {
     elevation: 4,
     margin: 10,
-
-    marginTop: 30,
   },
   container: {
     flex: 1,

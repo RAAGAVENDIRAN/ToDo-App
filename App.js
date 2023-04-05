@@ -4,12 +4,16 @@ import Iconic from "./components/Iconic";
 
 import Navigator from "./screens/Navigator";
 import Profile from "./screens/Profile";
+import { Provider } from "react-redux";
+import store from "./features/store";
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Navigator />
-    </View>
+    <Provider store={store}>
+      <View style={styles.container}>
+        <Navigator />
+      </View>
+    </Provider>
   );
 }
 

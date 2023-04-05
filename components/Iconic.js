@@ -1,7 +1,9 @@
-import React, { forwardRef, useRef, useEffect, useState } from "react";
+//Default Imports
+import React, { useState } from "react";
 import { View, TextInput, StyleSheet } from "react-native";
-import { useFonts, Poppins_800ExtraBold } from "@expo-google-fonts/poppins";
 
+//Third-Party Imports
+import { useFonts, Poppins_800ExtraBold } from "@expo-google-fonts/poppins";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 function Iconic({
@@ -31,10 +33,6 @@ function Iconic({
         styles.container,
         focused
           ? {
-              // borderBottomWidth: 2,
-              // borderBottomColor: "purple",
-              // borderBottomEndRadius: 0,
-              // borderBottomStartRadius: 0,
               borderWidth: 1,
               borderColor: "purple",
             }

@@ -8,7 +8,6 @@ import Login from "./Login";
 import SignUp from "./SignUp";
 import Profile from "./Profile";
 import Trash from "./Trash";
-// import AuthStack from "./AppStack";
 
 const Stack = createNativeStackNavigator();
 

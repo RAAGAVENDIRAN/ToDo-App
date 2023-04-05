@@ -1,15 +1,11 @@
+//default Imports
 import React, { useState } from "react";
-import DisplayList from "./DisplayList";
-
 import { FlatList } from "react-native";
+
+//Components Imports
 import DisplayListPending from "./DisplayListPending";
 
-export default function ListingPending({
-  filteredData,
-  MoveToTrashAsync,
-  navigationFunction,
-  PenToComAsync,
-}) {
+export default function ListingPending({ filteredData, navigation }) {
   const [scrollLock, setScrollLock] = useState(true);
   return (
     <>
@@ -25,15 +21,7 @@ export default function ListingPending({
             scrollLock={(scrollLock) => {
               setScrollLock(scrollLock);
             }}
-            PenToComAsync={(id) => {
-              PenToComAsync(id);
-            }}
-            navigationTo={(id, completed, createdDate, date, title) =>
-              navigationFunction(id, completed, createdDate, date, title)
-            }
-            MoveToTrashAsync={(id, completed) =>
-              MoveToTrashAsync(id, completed)
-            }
+            navigation={navigation}
           />
         )}
       />

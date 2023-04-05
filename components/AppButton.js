@@ -1,6 +1,8 @@
+//Default Imports
 import React from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 
+//Components IMports
 import colors from "../config/colors";
 import AppText from "./AppText";
 
