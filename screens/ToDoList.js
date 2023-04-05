@@ -16,6 +16,7 @@ import Listing from "../components/Listing";
 import ListingPending from "../components/ListingPending";
 import { useDispatch, useSelector } from "react-redux";
 import { serachTodo, setTodo } from "../features/actions";
+import { useIsFocused } from "@react-navigation/native";
 
 const Tab = createMaterialTopTabNavigator();
 let arr = [];
@@ -24,6 +25,7 @@ function ToDoList({ navigation }) {
   //redux
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.currentUser);
+  const isFocused = useIsFocused();
 
   //getting data from redux
   const todos = useSelector((state) => state.todo);
@@ -41,6 +43,7 @@ function ToDoList({ navigation }) {
 
   //getdata from async storage
   useEffect(() => {
+    console.log("get data called");
     const getData = async () => {
       try {
         const jsonValue = await AsyncStorage.getItem(`@todo ${userId}`);
@@ -71,7 +74,7 @@ function ToDoList({ navigation }) {
       }
     };
     getData();
-  }, []);
+  }, [isFocused]);
 
   // setting async storage
   useEffect(() => {
@@ -122,117 +125,119 @@ function ToDoList({ navigation }) {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.Top}>
-        <View style={styles.Headercontainer}>
-          <View style={{ flexDirection: "row" }}>
-            <FontAwesome5
-              name="user"
+  if (isFocused) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.Top}>
+          <View style={styles.Headercontainer}>
+            <View style={{ flexDirection: "row" }}>
+              <FontAwesome5
+                name="user"
+                size={30}
+                color="black"
+                onPress={() => {
+                  navigation.navigate({
+                    name: "Profile",
+                    params: {
+                      user: username,
+                      completed: completedTodo.length,
+                      pending: pendingTodo.length,
+                    },
+                    merge: true,
+                  });
+                }}
+              />
+            </View>
+
+            <MaterialIcons
+              name="restore-from-trash"
+              style={styles.Headericon}
               size={30}
               color="black"
               onPress={() => {
                 navigation.navigate({
-                  name: "Profile",
-                  params: {
-                    user: username,
-                    completed: completedTodo.length,
-                    pending: pendingTodo.length,
-                  },
-                  merge: true,
+                  name: "Trash",
                 });
               }}
             />
           </View>
 
-          <MaterialIcons
-            name="restore-from-trash"
-            style={styles.Headericon}
-            size={30}
-            color="black"
-            onPress={() => {
+          <SearchToDo
+            style={{ backgroundColor: "#fff" }}
+            value={search}
+            placeholder={"Search Here"}
+            onChangeText={Searching}
+          />
+        </View>
+        <Tab.Navigator
+          screenOptions={{
+            swipeEnabled: false,
+
+            tabBarStyle: {
+              backgroundColor: "#F3F8FF",
+              fonFamily: "Poppins_400Regular",
+            },
+          }}
+        >
+          <Tab.Screen
+            listeners={({ navigation, route }) => ({
+              focus: (e) => {
+                setTab(1);
+              },
+              blur: (e) => {
+                // setTab(0);
+                if (search !== "") Searching("");
+              },
+            })}
+            options={{
+              tabBarStyle: {
+                backgroundColor: "#fff",
+                labelStyle: {
+                  fontFamily: "Poppins_400Regular",
+                  fontSize: 30,
+                },
+              },
+            }}
+            name="Completed"
+            children={() => {
+              return (
+                <Listing filteredData={completedTodo} navigation={navigation} />
+              );
+            }}
+          />
+          <Tab.Screen
+            listeners={({ navigation, route }) => ({
+              focus: (e) => {
+                setTab(0);
+              },
+              blur: (e) => {
+                if (search !== "") Searching("");
+              },
+            })}
+            name="Pending"
+            children={() => {
+              return (
+                <ListingPending
+                  filteredData={pendingTodo}
+                  navigation={navigation}
+                />
+              );
+            }}
+          />
+        </Tab.Navigator>
+
+        {search === "" ? (
+          <BottomButton
+            navigated={() => {
               navigation.navigate({
-                name: "Trash",
+                name: "InputModel",
               });
             }}
           />
-        </View>
-
-        <SearchToDo
-          style={{ backgroundColor: "#fff" }}
-          value={search}
-          placeholder={"Search Here"}
-          onChangeText={Searching}
-        />
+        ) : null}
       </View>
-      <Tab.Navigator
-        screenOptions={{
-          swipeEnabled: false,
-
-          tabBarStyle: {
-            backgroundColor: "#F3F8FF",
-            fonFamily: "Poppins_400Regular",
-          },
-        }}
-      >
-        <Tab.Screen
-          listeners={({ navigation, route }) => ({
-            focus: (e) => {
-              setTab(1);
-            },
-            blur: (e) => {
-              // setTab(0);
-              if (search !== "") Searching("");
-            },
-          })}
-          options={{
-            tabBarStyle: {
-              backgroundColor: "#fff",
-              labelStyle: {
-                fontFamily: "Poppins_400Regular",
-                fontSize: 30,
-              },
-            },
-          }}
-          name="Completed"
-          children={() => {
-            return (
-              <Listing filteredData={completedTodo} navigation={navigation} />
-            );
-          }}
-        />
-        <Tab.Screen
-          listeners={({ navigation, route }) => ({
-            focus: (e) => {
-              setTab(0);
-            },
-            blur: (e) => {
-              if (search !== "") Searching("");
-            },
-          })}
-          name="Pending"
-          children={() => {
-            return (
-              <ListingPending
-                filteredData={pendingTodo}
-                navigation={navigation}
-              />
-            );
-          }}
-        />
-      </Tab.Navigator>
-
-      {search === "" ? (
-        <BottomButton
-          navigated={() => {
-            navigation.navigate({
-              name: "InputModel",
-            });
-          }}
-        />
-      ) : null}
-    </View>
-  );
+    );
+  }
 }
 
 const styles = StyleSheet.create({

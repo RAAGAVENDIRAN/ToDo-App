@@ -23,10 +23,10 @@ export default function (state = initialState, action) {
         ...state,
         completedTodo: [
           ...action.payload.completedTodo,
-          ...state.completedTodo,
+          // ...state.completedTodo,
         ],
-        pendingTodo: [...action.payload.pendingTodo, ...state.pendingTodo],
-        trashTodo: [...action.payload.trashTodo, ...state.trashTodo],
+        pendingTodo: [...action.payload.pendingTodo],
+        trashTodo: [...action.payload.trashTodo],
       };
     case ADD_TODO:
       return {

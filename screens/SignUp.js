@@ -212,6 +212,9 @@ function SignUp({ navigation }) {
               color="#B0DAFF"
               title="SIGN UP"
               onPress={handleLogin}
+              size={18}
+              font="Poppins_700Bold"
+              textColor="black"
             />
           </View>
         </View>
@@ -284,6 +287,9 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 10,
+    width: "40%",
+    backgroundColor: "#B0DAFF",
+    borderRadius: 25,
   },
   LastText: {
     justifyContent: "center",

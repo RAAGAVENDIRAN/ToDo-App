@@ -29,6 +29,8 @@ function Login({ navigation, route }) {
   const dispatch = useDispatch();
   const users = useSelector((state) => state.user.users);
 
+  // console.log(users);
+
   //states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,16 +53,16 @@ function Login({ navigation, route }) {
     getData();
   }, []);
 
-  //cleaning the Async Storage
-  // const clearAll = async () => {
-  //   try {
-  //     await AsyncStorage.clear();
-  //   } catch (e) {
-  //     // clear error
-  //   }
+  // cleaning the Async Storage
+  const clearAll = async () => {
+    try {
+      await AsyncStorage.clear();
+    } catch (e) {
+      // clear error
+    }
 
-  //   console.log("Done.");
-  // };
+    console.log("Done.");
+  };
 
   //Validate Email Function
   const validateEmail = (text) => {
@@ -149,9 +151,11 @@ function Login({ navigation, route }) {
           <View style={styles.Last}>
             <AppButton
               style={styles.button}
-              color="#B0DAFF"
               title="LOGIN"
               onPress={Auth}
+              size={18}
+              font="Poppins_700Bold"
+              textColor="black"
             />
           </View>
         </View>
@@ -217,6 +221,9 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 10,
+    width: "40%",
+    backgroundColor: "#B0DAFF",
+    borderRadius: 25,
   },
   LastText: {
     justifyContent: "center",

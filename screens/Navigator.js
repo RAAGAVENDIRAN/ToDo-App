@@ -8,6 +8,7 @@ import Login from "./Login";
 import SignUp from "./SignUp";
 import Profile from "./Profile";
 import Trash from "./Trash";
+import EditProfile from "./EditProfile";
 
 const Stack = createNativeStackNavigator();
 
@@ -65,6 +66,14 @@ export default function NavigatorPage() {
           component={Profile}
           options={{
             animation: "flip",
+            headerShown: false,
+          }}
+        ></Stack.Screen>
+        <Stack.Screen
+          name="EditProfile"
+          component={EditProfile}
+          options={{
+            headerShown: false,
           }}
         ></Stack.Screen>
       </Stack.Navigator>
