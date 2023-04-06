@@ -8,12 +8,14 @@ import {
   CLEAR_TRASH,
   EDIT_TODO,
   SEARCH_TODO,
+  REMOVE_DETAILS,
 } from "../actions";
 
 const initialState = {
   completedTodo: [],
   pendingTodo: [],
   trashTodo: [],
+  isFetched: false,
 };
 
 export default function (state = initialState, action) {
@@ -27,8 +29,10 @@ export default function (state = initialState, action) {
         ],
         pendingTodo: [...action.payload.pendingTodo],
         trashTodo: [...action.payload.trashTodo],
+        isFetched: true,
       };
     case ADD_TODO:
+      console.log("Here add");
       return {
         ...state,
         pendingTodo: [action.payload.newTodo, ...state.pendingTodo],
@@ -171,6 +175,16 @@ export default function (state = initialState, action) {
           }),
         };
       }
+    }
+
+    case REMOVE_DETAILS: {
+      return {
+        ...state,
+        completedTodo: [],
+        pendingTodo: [],
+        trashTodo: [],
+        isFetched: false,
+      };
     }
 
     default:

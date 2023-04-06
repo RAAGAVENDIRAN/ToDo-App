@@ -1,29 +1,53 @@
 //Default Import
 import React from "react";
-import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 //Component Import
 import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
 import IconsProfile from "../components/IconsProfile";
 import IconsGreater from "../components/IconGreater";
+import { removeDetails } from "../features/actions";
 
 const { width, height } = Dimensions.get("window");
+
 function Profile({ navigation }) {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.currentUser);
+  let profile = user.profile;
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
         <IconsGreater
           name="chevron-left"
           style={{ backgroundColor: "white" }}
+          onPress={() => {
+            navigation.navigate({
+              name: "TodoList",
+            });
+          }}
         />
         <AppText style={styles.topText}>Profile</AppText>
       </View>
 
       <View style={styles.middle}>
-        <View style={styles.circle}></View>
-        <AppText style={styles.nameText}>Raagavendiran M</AppText>
-        <AppText style={styles.mailText}>raagavendiran@gmail.com</AppText>
+        {profile ? (
+          <Image source={{ uri: profile }} style={styles.circle} />
+        ) : (
+          <Image
+            source={require("../assets/profile.png")}
+            style={styles.circle}
+          />
+        )}
+        <AppText style={styles.nameText}>{user.username}</AppText>
+        <AppText style={styles.mailText}>{user.email}</AppText>
         <AppButton
           title="Edit Profile"
           color="#B0DAFF"
@@ -56,23 +80,22 @@ function Profile({ navigation }) {
           <AppText style={styles.bottomText}>Information</AppText>
           <IconsGreater style={styles.rightIcon} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.lastComponent}>
+        <TouchableOpacity
+          style={styles.lastComponent}
+          onPress={() => {
+            dispatch(removeDetails());
+            navigation.navigate({
+              name: "Login",
+            });
+          }}
+        >
           <IconsProfile
             name="logout"
             iconType="AntDesign"
             size={25}
             style={styles.leftIcon}
           />
-          <AppText
-            style={styles.bottomText}
-            onPress={() => {
-              navigation.navigate({
-                name: "Login",
-              });
-            }}
-          >
-            LogOut
-          </AppText>
+          <AppText style={styles.bottomText}>LogOut</AppText>
         </TouchableOpacity>
       </View>
     </View>

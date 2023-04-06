@@ -12,7 +12,6 @@ import {
 
 //third-Party Imports
 import { LinearGradient } from "expo-linear-gradient";
-import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
 import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
 import Iconic from "../components/Iconic";
@@ -20,7 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 //redux imports
 import { useDispatch, useSelector } from "react-redux";
-import { currentUser, setUser } from "../features/actions";
+import { currentUser, getUsers, setUser } from "../features/actions";
 
 const data = [""];
 
@@ -39,18 +38,19 @@ function Login({ navigation, route }) {
   const { width, height } = useWindowDimensions();
 
   useEffect(() => {
-    const getData = async () => {
-      try {
-        const jsonValue = await AsyncStorage.getItem("@users");
-        let users = JSON.parse(jsonValue).users;
-        if (users) {
-          dispatch(setUser({ user: users }));
-        }
-      } catch (e) {
-        // error reading value
-      }
-    };
-    getData();
+    //   const getData = async () => {
+    //     try {
+    //       const jsonValue = await AsyncStorage.getItem("@users");
+    //       let users = JSON.parse(jsonValue).users;
+    //       if (users) {
+    //         dispatch(setUser({ user: users }));
+    //       }
+    //     } catch (e) {
+    //       // error reading value
+    //     }
+    //   };
+    //   getData();
+    dispatch(getUsers());
   }, []);
 
   // cleaning the Async Storage

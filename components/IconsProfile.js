@@ -8,11 +8,12 @@ export default function IconsProfile({
   size = 30,
   color,
   style,
+  onPress,
 }) {
   let Icon = Icons[iconType];
   return (
     <View style={[styles.circle, style]}>
-      <Icon name={name} size={size} color={color}></Icon>
+      <Icon name={name} size={size} color={color} onPress={onPress}></Icon>
     </View>
   );
 }

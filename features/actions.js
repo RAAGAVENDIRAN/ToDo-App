@@ -11,6 +11,10 @@ export const DELETE_FROM_TRASH = "DELETE_FROM_TRASH";
 export const CLEAR_TRASH = "CLEAR_TRASH";
 export const EDIT_TODO = "EDIT_TODO";
 export const SEARCH_TODO = "SEARCH_TODO";
+export const REMOVE_DETAILS = "REMOVE DETAILS";
+export const REMOVE_CURRENTUSER = "REMOVE_CURRENTUSER";
+export const REMOVE_USER = "REMOVE_USER";
+export const GET_USERS = "GET_USERS";
 
 export const addUser = (content) => ({
   type: ADD_USER,
@@ -69,4 +73,20 @@ export const serachTodo = (content) => ({
 export const todoEdit = (content) => ({
   type: EDIT_TODO,
   payload: content,
+});
+
+export const removeDetails = () => ({
+  type: REMOVE_DETAILS,
+});
+
+export const removeCurrentUser = () => ({
+  type: REMOVE_CURRENTUSER,
+});
+
+export const removeUser = () => ({
+  type: REMOVE_USER,
+});
+
+export const getUsers = () => ({
+  type: GET_USERS,
 });

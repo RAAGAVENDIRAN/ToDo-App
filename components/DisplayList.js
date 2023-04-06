@@ -221,14 +221,14 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   date: {
-    fontFamily: "Poppins_300Light_Italic",
+    fontFamily: "Poppins_300Light",
     fontSize: 10,
     color: "black",
     alignItems: "flex-end",
     marginRight: 20,
   },
   dateStart: {
-    fontFamily: "Poppins_300Light_Italic",
+    fontFamily: "Poppins_300Light",
     fontSize: 10,
     color: "black",
     marginLeft: 20,

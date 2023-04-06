@@ -116,6 +116,7 @@ function SignUp({ navigation }) {
             email: email,
             password: password,
             userId: id,
+            joinedDate: new Date(),
           },
         ],
       });
@@ -127,6 +128,7 @@ function SignUp({ navigation }) {
             email: email,
             password: password,
             userId: id,
+            joinedDate: new Date(),
           },
         })
       );

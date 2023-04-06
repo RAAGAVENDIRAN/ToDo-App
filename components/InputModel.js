@@ -29,7 +29,7 @@ import { addTodo } from "../features/actions";
 import colors from "../config/colors";
 import AppText from "./AppText";
 
-const { width, height } = Dimensions.get("screen");
+const { width, height } = Dimensions.get("window");
 
 export default function InputModel({ navigation, route }) {
   //redux
@@ -264,7 +264,6 @@ const styles = StyleSheet.create({
     height: height,
     width: width,
     backgroundColor: "#B0DAFF",
-
     alignItems: "center",
   },
   inputStyle: {

@@ -1,6 +1,6 @@
 //default Imports
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Alert } from "react-native";
+import { StyleSheet, View, Image } from "react-native";
 
 //Third-Party Imports
 import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
@@ -15,8 +15,10 @@ import BottomButton from "../components/BottomButton";
 import Listing from "../components/Listing";
 import ListingPending from "../components/ListingPending";
 import { useDispatch, useSelector } from "react-redux";
-import { serachTodo, setTodo } from "../features/actions";
+import { removeDetails, serachTodo, setTodo } from "../features/actions";
 import { useIsFocused } from "@react-navigation/native";
+import { TouchableWithoutFeedback } from "react-native";
+import AppText from "../components/AppText";
 
 const Tab = createMaterialTopTabNavigator();
 let arr = [];
@@ -26,12 +28,14 @@ function ToDoList({ navigation }) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.currentUser);
   const isFocused = useIsFocused();
+  let profile = user.profile;
 
   //getting data from redux
   const todos = useSelector((state) => state.todo);
   const completedTodo = useSelector((state) => state.todo.completedTodo);
   const pendingTodo = useSelector((state) => state.todo.pendingTodo);
   const trashTodo = useSelector((state) => state.todo.trashTodo);
+  const isFetched = useSelector((state) => state.todo.isFetched);
 
   //state
   const [search, setSearch] = useState("");
@@ -41,9 +45,16 @@ function ToDoList({ navigation }) {
   const userId = user.userId;
   const username = user.username;
 
+  //
+  useEffect(() => {
+    const subscribe = navigation.addListener("beforeRemove", () => {
+      dispatch(removeDetails());
+    });
+    return subscribe;
+  }, [navigation]);
+
   //getdata from async storage
   useEffect(() => {
-    console.log("get data called");
     const getData = async () => {
       try {
         const jsonValue = await AsyncStorage.getItem(`@todo ${userId}`);
@@ -73,7 +84,8 @@ function ToDoList({ navigation }) {
         console.log(e);
       }
     };
-    getData();
+
+    if (!isFetched) getData();
   }, [isFocused]);
 
   // setting async storage
@@ -131,35 +143,47 @@ function ToDoList({ navigation }) {
         <View style={styles.Top}>
           <View style={styles.Headercontainer}>
             <View style={{ flexDirection: "row" }}>
-              <FontAwesome5
-                name="user"
-                size={30}
+              <View>
+                {profile ? (
+                  <TouchableWithoutFeedback
+                    onPress={() => {
+                      navigation.navigate({
+                        name: "Profile",
+                      });
+                    }}
+                  >
+                    <Image source={{ uri: profile }} style={styles.circle} />
+                  </TouchableWithoutFeedback>
+                ) : (
+                  <TouchableWithoutFeedback
+                    onPress={() => {
+                      navigation.navigate({
+                        name: "Profile",
+                      });
+                    }}
+                  >
+                    <Image
+                      source={require("../assets/profile.png")}
+                      style={styles.circle}
+                    />
+                  </TouchableWithoutFeedback>
+                )}
+              </View>
+              <AppText style={styles.HeaderText}>Hi {user.username}</AppText>
+            </View>
+            <View>
+              <MaterialIcons
+                name="restore-from-trash"
+                style={styles.Headericon}
+                size={40}
                 color="black"
                 onPress={() => {
                   navigation.navigate({
-                    name: "Profile",
-                    params: {
-                      user: username,
-                      completed: completedTodo.length,
-                      pending: pendingTodo.length,
-                    },
-                    merge: true,
+                    name: "Trash",
                   });
                 }}
               />
             </View>
-
-            <MaterialIcons
-              name="restore-from-trash"
-              style={styles.Headericon}
-              size={30}
-              color="black"
-              onPress={() => {
-                navigation.navigate({
-                  name: "Trash",
-                });
-              }}
-            />
           </View>
 
           <SearchToDo
@@ -256,6 +280,18 @@ const styles = StyleSheet.create({
 
   itemStyle: {
     padding: 10,
+  },
+
+  HeaderText: {
+    fontSize: 20,
+    fontFamily: "Poppins_700Bold",
+  },
+
+  circle: {
+    height: 50,
+    width: 50,
+    backgroundColor: "#E4DCCF",
+    borderRadius: 25,
   },
 
   Headercontainer: {
