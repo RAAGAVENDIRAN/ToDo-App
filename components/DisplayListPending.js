@@ -70,7 +70,6 @@ function DisplayListPending({ item, navigation, scrollLock }) {
         marginVertical.value = withTiming(0);
         opacity.value = withTiming(0, undefined, (isFinished) => {
           if (isFinished) {
-            // runOnJS(MoveToTrashAsync)(item.id, "no", item.createDate);
             runOnJS(setCallDelete)(true);
             runOnJS(scrollLock)(true);
           }
@@ -155,7 +154,7 @@ function DisplayListPending({ item, navigation, scrollLock }) {
                     style={styles.check}
                     status={checks[isChecked]}
                     onPress={async () => {
-                      setChecked(isChecked ^ 1);
+                      // setChecked(isChecked ^ 1);
                       dispatch(markTodo({ todo: item }));
                     }}
                   />

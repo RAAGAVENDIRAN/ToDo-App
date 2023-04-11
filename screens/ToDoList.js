@@ -14,28 +14,45 @@ import SearchToDo from "../components/SearchToDo";
 import BottomButton from "../components/BottomButton";
 import Listing from "../components/Listing";
 import ListingPending from "../components/ListingPending";
-import { useDispatch, useSelector } from "react-redux";
-import { removeDetails, serachTodo, setTodo } from "../features/actions";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import {
+  GET_TODO,
+  currentUser,
+  removeDetails,
+  serachTodo,
+  setTodo,
+} from "../features/actions";
 import { useIsFocused } from "@react-navigation/native";
 import { TouchableWithoutFeedback } from "react-native";
 import AppText from "../components/AppText";
+import { getCompletedTodos, getPendingTodos } from "../features/selectors";
+import store from "../features/store";
 
 const Tab = createMaterialTopTabNavigator();
-let arr = [];
 
+let obj;
 function ToDoList({ navigation }) {
   //redux
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.currentUser);
+
   const isFocused = useIsFocused();
   let profile = user.profile;
 
   //getting data from redux
-  const todos = useSelector((state) => state.todo);
-  const completedTodo = useSelector((state) => state.todo.completedTodo);
-  const pendingTodo = useSelector((state) => state.todo.pendingTodo);
-  const trashTodo = useSelector((state) => state.todo.trashTodo);
+  const { completedTodo, pendingTodo } = useSelector((state) => state.todo);
+
+  // const trashTodo = useSelector((state) => state.todo.trashTodo);
   const isFetched = useSelector((state) => state.todo.isFetched);
+  let searchObj = useSelector((state) => state.todo.searchObj);
+  let completedTodoArr = [];
+  Object.keys(completedTodo).filter((key) => {
+    completedTodoArr.push(completedTodo[key.toString()]);
+  });
+  let pendingTodoArr = [];
+  Object.keys(pendingTodo).filter((key) => {
+    pendingTodoArr.push(pendingTodo[key.toString()]);
+  });
 
   //state
   const [search, setSearch] = useState("");
@@ -44,84 +61,57 @@ function ToDoList({ navigation }) {
   //datas
   const userId = user.userId;
   const username = user.username;
+  // console.log(userId);
 
-  //
-  useEffect(() => {
-    const subscribe = navigation.addListener("beforeRemove", () => {
-      dispatch(removeDetails());
-    });
-    return subscribe;
-  }, [navigation]);
+  // useEffect(() => {
+  //   console.log("Force Rerendered");
+  //   setRetrieve(!retrieve);
+  // }, [store.getState().todo]);
 
   //getdata from async storage
   useEffect(() => {
-    const getData = async () => {
-      try {
+    if (!isFetched) {
+      // console.log("Get Data Called");
+      // dispatch({
+      //   type: GET_TODO,
+      //   payload: {
+      //     userId: userId,
+      //   },
+      // });
+      async function getTodos() {
         const jsonValue = await AsyncStorage.getItem(`@todo ${userId}`);
         const value = JSON.parse(jsonValue);
 
-        let tempPendingTodo = [];
-        let tempCompletedTodo = [];
-        let tempTrashTodo = [];
-
-        if (value && value.userId.completedTodo)
-          tempCompletedTodo = value.userId.completedTodo;
-        if (value && value.userId.pendingTodo)
-          tempPendingTodo = value.userId.pendingTodo;
-        if (value && value.userId.trashTodo)
-          tempTrashTodo = value.userId.trashTodo;
-
         dispatch(
-          setTodo({
-            completedTodo: tempCompletedTodo,
-            pendingTodo: tempPendingTodo,
-            trashTodo: tempTrashTodo,
-          })
+          setTodo(
+            value
+              ? value.userId
+              : {
+                  completedTodo: {},
+                  pendingTodo: {},
+                  trashTodo: {},
+                }
+          )
         );
-        arr = tempCompletedTodo;
-        setRetrieve(true);
-      } catch (e) {
-        console.log(e);
       }
-    };
 
-    if (!isFetched) getData();
-  }, [isFocused]);
-
-  // setting async storage
-  useEffect(() => {
-    if (retrieve) {
-      storeData({
-        userId: {
-          completedTodo: completedTodo,
-          pendingTodo: pendingTodo,
-          trashTodo: trashTodo,
-        },
-      });
+      getTodos();
     }
-  }, [todos]);
+  }, [isFocused, user]);
 
   //fonts
   let [fontsLoaded] = useFonts({ Poppins_400Regular });
 
-  //store data to async storage
-  const storeData = async (value) => {
-    try {
-      const jsonValue = JSON.stringify(value);
-      let value2 = await AsyncStorage.setItem(`@todo ${userId}`, jsonValue);
-    } catch (e) {
-      console.log("Error");
-    }
-  };
-
   // Search function
   const Searching = (newtext) => {
     setSearch(newtext);
-    if (arr.length) {
+
+    if (Object.values(obj).length) {
+      console.log("Raagha");
       dispatch(
         serachTodo({
-          array: [...arr],
-          bool: arr[0].completed,
+          obj: obj,
+          bool: Object.values(obj)[0].completed,
           newtext: newtext,
         })
       );
@@ -131,10 +121,11 @@ function ToDoList({ navigation }) {
   // setting the current tab array
   const setTab = (tab) => {
     if (tab == 1) {
-      arr = completedTodo;
+      obj = searchObj.completedTodo;
     } else {
-      arr = pendingTodo;
+      obj = searchObj.pendingTodo;
     }
+    // console.log(obj);
   };
 
   if (isFocused) {
@@ -206,7 +197,9 @@ function ToDoList({ navigation }) {
           <Tab.Screen
             listeners={({ navigation, route }) => ({
               focus: (e) => {
+                console.log("IN cOMPLETED");
                 setTab(1);
+                setRetrieve(!retrieve);
               },
               blur: (e) => {
                 // setTab(0);
@@ -225,7 +218,10 @@ function ToDoList({ navigation }) {
             name="Completed"
             children={() => {
               return (
-                <Listing filteredData={completedTodo} navigation={navigation} />
+                <Listing
+                  navigation={navigation}
+                  completedTodoArr={completedTodoArr}
+                />
               );
             }}
           />
@@ -233,6 +229,8 @@ function ToDoList({ navigation }) {
             listeners={({ navigation, route }) => ({
               focus: (e) => {
                 setTab(0);
+
+                setRetrieve(!retrieve);
               },
               blur: (e) => {
                 if (search !== "") Searching("");
@@ -242,8 +240,8 @@ function ToDoList({ navigation }) {
             children={() => {
               return (
                 <ListingPending
-                  filteredData={pendingTodo}
                   navigation={navigation}
+                  pendingTodoArr={pendingTodoArr}
                 />
               );
             }}

@@ -34,6 +34,7 @@ const LIST_ITEM_HEIGHT = 90;
 
 function DisplayList({ item, navigation, scrollLock }) {
   //redux
+  // console.log("DIplay ", item);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.currentUser);
 

@@ -50,10 +50,10 @@ function EditProfile({ navigation }) {
   // redux
   const dispatch = useDispatch();
   const currentuser = useSelector((state) => state.user.currentUser);
-  console.log(currentuser.userId);
+  // console.log(currentuser.userId);
   const user = useSelector((state) => state.user.users);
   const userId = user.userId;
-  console.log(user);
+  // console.log(user);
 
   //state
   const [image, setImage] = useState(currentuser.profile);
@@ -77,32 +77,11 @@ function EditProfile({ navigation }) {
 
   // //
 
-  // var months = [
-  //   "January",
-  //   "February",
-  //   "March",
-  //   "April",
-  //   "May",
-  //   "June",
-  //   "July",
-  //   "August",
-  //   "September",
-  //   "October",
-  //   "November",
-  //   "December",
-  // ];
-
-  // function convertDate(date_str) {
-  //   temp_date = date_str.split("-");
-
-  //   return (
-  //     temp_date[2] + " " + months[Number(temp_date[1]) - 1] + " " + temp_date[0]
-  //   );
-  // }
-
   let date = currentuser.joinedDate;
-  let joined = Date(date.toString()).slice(0, 10);
-  console.log(joined);
+  let joined = date.toString().slice(0, 10);
+
+  // console.log(date);
+  // console.log(joined);
 
   //fonts
   let [fontsLoaded, error] = useFonts({

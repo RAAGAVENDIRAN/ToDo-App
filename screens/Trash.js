@@ -14,6 +14,8 @@ import DisplayListTrash from "../components/DisplayListTrash";
 import SearchToDo from "../components/SearchToDo";
 import { clearTrash, serachTodo } from "../features/actions";
 
+import { GET_TODO } from "../features/actions";
+
 let arr = [];
 
 export default function Trash({ navigation, route }) {
@@ -21,81 +23,55 @@ export default function Trash({ navigation, route }) {
   const user = useSelector((state) => state.user.currentUser);
   const dispatch = useDispatch();
 
-  const completedTodo = useSelector((state) => state.todo.completedTodo);
-  const pendingTodo = useSelector((state) => state.todo.pendingTodo);
+  // const completedTodo = useSelector((state) => state.todo.completedTodo);
+  // const pendingTodo = useSelector((state) => state.todo.pendingTodo);
   const trashTodo = useSelector((state) => state.todo.trashTodo);
+  let obj = useSelector((state) => state.todo.trashTodo);
   // let temp = trashTodo;
   // arr = temp;
 
   //datas
   const userId = user.userId;
 
+  //
+
+  // let completedTodoArr = [];
+  // let pendingTodoArr = [];
+  let trashTodoArr = [];
+
+  // Object.keys(completedTodo).filter((key) => {
+  //   completedTodoArr.push(completedTodo[key.toString()]);
+  // });
+
+  // Object.keys(pendingTodo).filter((key) => {
+  //   pendingTodoArr.push(pendingTodo[key.toString()]);
+  // });
+
+  Object.keys(trashTodo).filter((key) => {
+    trashTodoArr.push(trashTodo[key.toString()]);
+  });
+
+  console.log(trashTodoArr);
+
   //states
   const [search, setSearch] = useState("");
-  const [retrieve, setRetrieve] = useState(false);
-
-  //   store data to async storage
-  const storeData = async (value) => {
-    try {
-      const jsonValue = JSON.stringify(value);
-      let value2 = await AsyncStorage.setItem(`@todo ${userId}`, jsonValue);
-    } catch (e) {
-      // saving error
-      console.log("Error");
-    }
-  };
-
-  //get Data of trash
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const jsonValue = await AsyncStorage.getItem(`@todo ${userId}`);
-        const value = JSON.parse(jsonValue);
-
-        let tempTrashTodo = [];
-        if (value && value.userId.trashTodo)
-          tempTrashTodo = value.userId.trashTodo;
-
-        arr = tempTrashTodo;
-        setRetrieve(true);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    getData();
-  }, []);
-
-  //setting in async storage
-  useEffect(() => {
-    console.log("In DB Setter");
-    if (retrieve) {
-      console.log("Storing Data");
-      storeData({
-        userId: {
-          completedTodo: completedTodo,
-          pendingTodo: pendingTodo,
-          trashTodo: trashTodo,
-        },
-      });
-      setRetrieve(false);
-    }
-  }, [retrieve]);
+  // const [retrieve, setRetrieve] = useState(false);
 
   //fonts
   let [fontsLoaded] = useFonts({ Poppins_400Regular });
 
-  const callDB = () => {
-    setRetrieve(true);
-  };
+  // const callDB = () => {
+  //   setRetrieve(true);
+  // };
 
   //searching
   const Searching = (newtext) => {
     setSearch(newtext);
 
-    if (arr.length) {
+    if (Object.values(obj).length) {
       dispatch(
         serachTodo({
-          array: [...arr],
+          obj: obj,
           bool: "trash",
           newtext: newtext,
         })
@@ -121,7 +97,7 @@ export default function Trash({ navigation, route }) {
             size={30}
             color="black"
             onPress={() => {
-              if (trashTodo.length > 0) {
+              if (trashTodoArr.length > 0) {
                 Alert.alert("Are you Sure?", "Your Trash  will be deleted", [
                   {
                     text: "Confirm",
@@ -158,11 +134,11 @@ export default function Trash({ navigation, route }) {
         />
       </View>
       <FlatList
-        data={trashTodo}
+        data={trashTodoArr}
         keyExtractor={(item) => item.id}
         style={{ backgroundColor: "#fff" }}
         renderItem={({ item }) => (
-          <DisplayListTrash data={trashTodo} item={item} callDB={callDB} />
+          <DisplayListTrash data={trashTodoArr} item={item} />
         )}
       />
     </View>

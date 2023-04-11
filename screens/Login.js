@@ -38,18 +38,10 @@ function Login({ navigation, route }) {
   const { width, height } = useWindowDimensions();
 
   useEffect(() => {
-    //   const getData = async () => {
-    //     try {
-    //       const jsonValue = await AsyncStorage.getItem("@users");
-    //       let users = JSON.parse(jsonValue).users;
-    //       if (users) {
-    //         dispatch(setUser({ user: users }));
-    //       }
-    //     } catch (e) {
-    //       // error reading value
-    //     }
-    //   };
-    //   getData();
+    const sub = navigation.addListener("focus", () => {});
+  }, [navigation]);
+
+  useEffect(() => {
     dispatch(getUsers());
   }, []);
 
@@ -89,7 +81,6 @@ function Login({ navigation, route }) {
           dispatch(currentUser({ currentUser: item }));
           navigation.navigate({
             name: "TodoList",
-            // params: { user: item },
           });
         }
       }
@@ -153,6 +144,7 @@ function Login({ navigation, route }) {
               style={styles.button}
               title="LOGIN"
               onPress={Auth}
+              // onPress={clearAll}
               size={18}
               font="Poppins_700Bold"
               textColor="black"

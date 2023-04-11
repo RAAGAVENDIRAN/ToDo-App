@@ -33,7 +33,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const LIST_ITEM_HEIGHT = 80;
 
-function DisplayListTrash({ item, callDB }) {
+function DisplayListTrash({ item }) {
   //redux
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.currentUser);
@@ -129,7 +129,7 @@ function DisplayListTrash({ item, callDB }) {
   useEffect(() => {
     if (callDelete) {
       dispatch(deleteFromTrash({ todo: item }));
-      callDB();
+      // callDB();
     }
   }, [callDelete]);
 
@@ -137,7 +137,7 @@ function DisplayListTrash({ item, callDB }) {
   useEffect(() => {
     if (callRestore) {
       dispatch(restoreFromTrash({ todo: item }));
-      callDB();
+      // callDB();
     }
   }, [callRestore]);
 

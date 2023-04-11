@@ -42,6 +42,20 @@ export default function InputModel({ navigation, route }) {
   //datas
   const userId = user.userId;
 
+  //
+  let completedTodoArr = [];
+  let pendingTodoArr = [];
+
+  Object.keys(completedTodo).filter((key) => {
+    completedTodoArr.push(completedTodo[key.toString()]);
+  });
+
+  Object.keys(pendingTodo).filter((key) => {
+    pendingTodoArr.push(pendingTodo[key.toString()]);
+  });
+
+  // console.log(pendingTodoArr);
+  // console.log("sdsd", completedTodoArr);
   //states
   const [todoInput, setTodoInput] = useState("");
   const [date, setDate] = useState(new Date());
@@ -55,7 +69,7 @@ export default function InputModel({ navigation, route }) {
   }, [markDate]);
 
   const calendarDate = () => {
-    [...completedTodo, ...pendingTodo].map((item) => {
+    [...completedTodoArr, ...pendingTodoArr].map((item) => {
       if (item.completed == true) {
         markDate[new Date(item.date).toISOString().slice(0, 10)] = {
           marked: true,

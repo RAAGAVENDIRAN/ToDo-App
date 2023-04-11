@@ -15,6 +15,9 @@ export const REMOVE_DETAILS = "REMOVE DETAILS";
 export const REMOVE_CURRENTUSER = "REMOVE_CURRENTUSER";
 export const REMOVE_USER = "REMOVE_USER";
 export const GET_USERS = "GET_USERS";
+export const APP_STATE = "APP_STATE";
+export const APP_CLOSING = "APP_CLOSING";
+export const GET_TODO = "GET_TODO";
 
 export const addUser = (content) => ({
   type: ADD_USER,
@@ -90,3 +93,7 @@ export const removeUser = () => ({
 export const getUsers = () => ({
   type: GET_USERS,
 });
+
+// export const appState = () => ({
+//   type: APP_STATE,
+// });

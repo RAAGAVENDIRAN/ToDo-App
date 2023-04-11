@@ -14,7 +14,7 @@ import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
 import IconsProfile from "../components/IconsProfile";
 import IconsGreater from "../components/IconGreater";
-import { removeDetails } from "../features/actions";
+import { removeCurrentUser, removeDetails } from "../features/actions";
 
 const { width, height } = Dimensions.get("window");
 
@@ -83,7 +83,7 @@ function Profile({ navigation }) {
         <TouchableOpacity
           style={styles.lastComponent}
           onPress={() => {
-            dispatch(removeDetails());
+            // dispatch(removeCurrentUser());
             navigation.navigate({
               name: "Login",
             });

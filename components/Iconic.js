@@ -13,6 +13,7 @@ function Iconic({
   height,
   placeholder,
   isFocused,
+
   secureTextEntry,
   onChangeText,
   value,
@@ -51,6 +52,7 @@ function Iconic({
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
+        importantForAutofill="no"
         onFocus={() => {
           setFocused(true);
         }}

@@ -12,10 +12,11 @@ import {
 } from "../actions";
 
 const initialState = {
-  completedTodo: [],
-  pendingTodo: [],
-  trashTodo: [],
+  completedTodo: {},
+  pendingTodo: {},
+  trashTodo: {},
   isFetched: false,
+  searchObj: { completedTodo: {}, pendingTodo: {} },
 };
 
 export default function (state = initialState, action) {
@@ -23,128 +24,102 @@ export default function (state = initialState, action) {
     case SET_TODO:
       return {
         ...state,
-        completedTodo: [
-          ...action.payload.completedTodo,
-          // ...state.completedTodo,
-        ],
-        pendingTodo: [...action.payload.pendingTodo],
-        trashTodo: [...action.payload.trashTodo],
+        completedTodo: { ...action.payload.completedTodo },
+        pendingTodo: { ...action.payload.pendingTodo },
+        trashTodo: { ...action.payload.trashTodo },
         isFetched: true,
+        searchObj: {
+          completedTodo: { ...action.payload.completedTodo },
+          pendingTodo: { ...action.payload.pendingTodo },
+        },
       };
-    case ADD_TODO:
-      console.log("Here add");
+    case ADD_TODO: {
+      state.pendingTodo[action.payload.newTodo.id] = action.payload.newTodo;
+
       return {
         ...state,
-        pendingTodo: [action.payload.newTodo, ...state.pendingTodo],
       };
+    }
 
-    case MARK_TODO:
+    case MARK_TODO: {
       if (action.payload.todo.completed) {
         action.payload.todo.completed = false;
-        return {
-          ...state,
-          completedTodo: state.completedTodo.filter(
-            (item) => item.id !== action.payload.todo.id
-          ),
-          pendingTodo: [action.payload.todo, ...state.pendingTodo],
-        };
+        delete state.completedTodo[action.payload.todo.id];
+        state.pendingTodo[action.payload.todo.id] = action.payload.todo;
       } else {
         action.payload.todo.completed = true;
-        return {
-          ...state,
-          pendingTodo: state.pendingTodo.filter(
-            (item) => item.id !== action.payload.todo.id
-          ),
-          completedTodo: [action.payload.todo, ...state.completedTodo],
-        };
+        delete state.pendingTodo[action.payload.todo.id];
+        state.completedTodo[action.payload.todo.id] = action.payload.todo;
       }
 
-    case MOVE_TO_TRASH:
+      return {
+        ...state,
+      };
+    }
+
+    case MOVE_TO_TRASH: {
       if (action.payload.todo.completed) {
-        return {
-          ...state,
-          completedTodo: state.completedTodo.filter(
-            (item) => item.id !== action.payload.todo.id
-          ),
-          trashTodo: [action.payload.todo, ...state.trashTodo],
-        };
-      } else {
-        return {
-          ...state,
-          pendingTodo: state.pendingTodo.filter(
-            (item) => item.id !== action.payload.todo.id
-          ),
-          trashTodo: [action.payload.todo, ...state.trashTodo],
-        };
-      }
+        delete state.completedTodo[action.payload.todo.id];
 
+        state.trashTodo[action.payload.todo.id] = action.payload.todo;
+      } else {
+        delete state.pendingTodo[action.payload.todo.id];
+        state.trashTodo[action.payload.todo.id] = action.payload.todo;
+      }
+      return {
+        ...state,
+      };
+    }
     case RESTORE_FROM_TRASH: {
       if (action.payload.todo.completed) {
-        return {
-          ...state,
-          trashTodo: state.trashTodo.filter(
-            (item) => item.id !== action.payload.todo.id
-          ),
-          completedTodo: [action.payload.todo, ...state.completedTodo],
-        };
+        delete state.trashTodo[action.payload.todo.id];
+        state.completedTodo[action.payload.todo.id] = action.payload.todo;
       } else {
-        return {
-          ...state,
-          trashTodo: state.trashTodo.filter(
-            (item) => item.id !== action.payload.todo.id
-          ),
-          pendingTodo: [action.payload.todo, ...state.pendingTodo],
-        };
+        delete state.trashTodo[action.payload.todo.id];
+        state.pendingTodo[action.payload.todo.id] = action.payload.todo;
       }
+
+      return {
+        ...state,
+      };
     }
 
     case DELETE_FROM_TRASH: {
+      delete state.trashTodo[action.payload.todo.id];
+
       return {
         ...state,
-        trashTodo: state.trashTodo.filter(
-          (item) => item.id !== action.payload.todo.id
-        ),
       };
     }
 
     case CLEAR_TRASH: {
+      console.log("clear");
       return {
         ...state,
-        trashTodo: [],
+        trashTodo: {},
       };
     }
 
     case EDIT_TODO: {
       if (action.payload.completed) {
-        return {
-          ...state,
-          completedTodo: state.completedTodo.filter((item) => {
-            if (item.id === action.payload.id) {
-              item.title = action.payload.title;
-              item.date = action.payload.date;
-            }
-            return item;
-          }),
-        };
+        state.completedTodo[action.payload.id].title = action.payload.title;
+        state.completedTodo[action.payload.id].date = action.payload.date;
       } else {
-        return {
-          ...state,
-          pendingTodo: state.pendingTodo.filter((item) => {
-            if (item.id === action.payload.id) {
-              item.title = action.payload.title;
-              item.date = action.payload.date;
-            }
-            return item;
-          }),
-        };
+        state.pendingTodo[action.payload.id].title = action.payload.title;
+        state.pendingTodo[action.payload.id].date = action.payload.date;
       }
+
+      return {
+        ...state,
+      };
     }
 
     case SEARCH_TODO: {
+      //need to change
       if (action.payload.bool === true) {
         return {
           ...state,
-          completedTodo: action.payload.array.filter((item) => {
+          completedTodo: Object.values(action.payload.obj).filter((item) => {
             let itemData = item.title
               ? item.title.toUpperCase()
               : "".toUpperCase();
@@ -155,7 +130,7 @@ export default function (state = initialState, action) {
       } else if (action.payload.bool === false) {
         return {
           ...state,
-          pendingTodo: action.payload.array.filter((item) => {
+          pendingTodo: Object.values(action.payload.obj).filter((item) => {
             let itemData = item.title
               ? item.title.toUpperCase()
               : "".toUpperCase();
@@ -166,7 +141,7 @@ export default function (state = initialState, action) {
       } else {
         return {
           ...state,
-          trashTodo: action.payload.array.filter((item) => {
+          trashTodo: Object.values(action.payload.obj).filter((item) => {
             let itemData = item.title
               ? item.title.toUpperCase()
               : "".toUpperCase();
@@ -178,12 +153,14 @@ export default function (state = initialState, action) {
     }
 
     case REMOVE_DETAILS: {
+      console.log("removed");
       return {
         ...state,
-        completedTodo: [],
-        pendingTodo: [],
-        trashTodo: [],
+        completedTodo: {},
+        pendingTodo: {},
+        trashTodo: {},
         isFetched: false,
+        searchObj: { completedTodo: {}, pendingTodo: {} },
       };
     }
 

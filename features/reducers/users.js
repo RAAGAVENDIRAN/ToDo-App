@@ -27,11 +27,11 @@ export default function (state = initialState, action) {
         currentUser: { ...action.payload.currentUser },
       };
 
-    // case REMOVE_CURRENTUSER:
-    //   return {
-    //     ...state,
-    //     currentUser: [],
-    //   };
+    case REMOVE_CURRENTUSER:
+      return {
+        ...state,
+        currentUser: [],
+      };
 
     // case REMOVE_USER:
     //   return {
