@@ -6,7 +6,7 @@ import { StyleSheet, View, Image } from "react-native";
 import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
-import { FontAwesome5 } from "@expo/vector-icons";
+
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
 //components IMports
@@ -14,7 +14,7 @@ import SearchToDo from "../components/SearchToDo";
 import BottomButton from "../components/BottomButton";
 import Listing from "../components/Listing";
 import ListingPending from "../components/ListingPending";
-import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   GET_TODO,
   currentUser,
@@ -25,7 +25,7 @@ import {
 import { useIsFocused } from "@react-navigation/native";
 import { TouchableWithoutFeedback } from "react-native";
 import AppText from "../components/AppText";
-import { getCompletedTodos, getPendingTodos } from "../features/selectors";
+
 import store from "../features/store";
 
 const Tab = createMaterialTopTabNavigator();
@@ -45,6 +45,8 @@ function ToDoList({ navigation }) {
   // const trashTodo = useSelector((state) => state.todo.trashTodo);
   const isFetched = useSelector((state) => state.todo.isFetched);
   let searchObj = useSelector((state) => state.todo.searchObj);
+  console.log(searchObj);
+
   let completedTodoArr = [];
   Object.keys(completedTodo).filter((key) => {
     completedTodoArr.push(completedTodo[key.toString()]);
@@ -56,46 +58,39 @@ function ToDoList({ navigation }) {
 
   //state
   const [search, setSearch] = useState("");
-  const [retrieve, setRetrieve] = useState(false);
+  // const [retrieve, setRetrieve] = useState(false);
 
   //datas
   const userId = user.userId;
   const username = user.username;
   // console.log(userId);
 
-  // useEffect(() => {
-  //   console.log("Force Rerendered");
-  //   setRetrieve(!retrieve);
-  // }, [store.getState().todo]);
-
   //getdata from async storage
   useEffect(() => {
     if (!isFetched) {
-      // console.log("Get Data Called");
-      // dispatch({
-      //   type: GET_TODO,
-      //   payload: {
-      //     userId: userId,
-      //   },
-      // });
-      async function getTodos() {
-        const jsonValue = await AsyncStorage.getItem(`@todo ${userId}`);
-        const value = JSON.parse(jsonValue);
+      console.log("Get Data Called");
+      dispatch({
+        type: GET_TODO,
+        payload: {
+          userId: userId,
+        },
+      });
+      // async function getTodos() {
+      //   const jsonValue = await AsyncStorage.getItem(`@todo ${userId}`);
+      //   const value = JSON.parse(jsonValue);
 
-        dispatch(
-          setTodo(
-            value
-              ? value.userId
-              : {
-                  completedTodo: {},
-                  pendingTodo: {},
-                  trashTodo: {},
-                }
-          )
-        );
-      }
-
-      getTodos();
+      //   dispatch(
+      //     setTodo(
+      //       value
+      //         ? value.userId
+      //         : {
+      //             completedTodo: {},
+      //             pendingTodo: {},
+      //             trashTodo: {},
+      //           }
+      //     )
+      //   );
+      // }
     }
   }, [isFocused, user]);
 
@@ -105,7 +100,8 @@ function ToDoList({ navigation }) {
   // Search function
   const Searching = (newtext) => {
     setSearch(newtext);
-
+    console.log(obj);
+    console.log("Here");
     if (Object.values(obj).length) {
       console.log("Raagha");
       dispatch(
@@ -199,7 +195,7 @@ function ToDoList({ navigation }) {
               focus: (e) => {
                 console.log("IN cOMPLETED");
                 setTab(1);
-                setRetrieve(!retrieve);
+                // setRetrieve(!retrieve);
               },
               blur: (e) => {
                 // setTab(0);
@@ -230,7 +226,7 @@ function ToDoList({ navigation }) {
               focus: (e) => {
                 setTab(0);
 
-                setRetrieve(!retrieve);
+                // setRetrieve(!retrieve);
               },
               blur: (e) => {
                 if (search !== "") Searching("");
