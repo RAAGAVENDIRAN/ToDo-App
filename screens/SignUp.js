@@ -190,7 +190,6 @@ function SignUp({ navigation }) {
               placeholder="EMAIL"
               value={email}
               onChangeText={validateEmail}
-              onPress={() => setSeePassword(!seePassword)}
             />
             <View style={styles.wrongText}>
               {checkValidEmail ? (
