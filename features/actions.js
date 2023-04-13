@@ -68,7 +68,7 @@ export const clearTrash = () => ({
   type: CLEAR_TRASH,
 });
 
-export const serachTodo = (content) => ({
+export const searchTodo = (content) => ({
   type: SEARCH_TODO,
   payload: content,
 });
@@ -93,7 +93,3 @@ export const removeUser = () => ({
 export const getUsers = () => ({
   type: GET_USERS,
 });
-
-// export const appState = () => ({
-//   type: APP_STATE,
-// });

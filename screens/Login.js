@@ -1,85 +1,92 @@
 //default Imports
-
-import React, { useEffect, useState } from "react";
+import React, { Component } from "react";
 import {
   View,
   StyleSheet,
   ScrollView,
   ToastAndroid,
   Text,
-  useWindowDimensions,
+  Dimensions,
 } from "react-native";
+import { connect } from "react-redux";
+import { currentUser, getUsers } from "../features/actions";
 
 //third-Party Imports
-import { LinearGradient } from "expo-linear-gradient";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+//Component Imports
 import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
 import Iconic from "../components/Iconic";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-//redux imports
-import { useDispatch, useSelector } from "react-redux";
-import { currentUser, getUsers, setUser } from "../features/actions";
-
+//constants
 const data = [""];
+const { width, height } = Dimensions.get("window");
 
-function Login({ navigation, route }) {
-  // redux
-  const dispatch = useDispatch();
-  const users = useSelector((state) => state.user.users);
+class Login extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: "",
+      password: "",
+      seePassword: true,
+      checkValidEmail: false,
+    };
+  }
 
-  // console.log(users);
+  componentDidMount() {
+    this.props.getUsers();
+  }
 
-  //states
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [seePassword, setSeePassword] = useState(true);
-  const [checkValidEmail, setCheckValidEmail] = useState(false);
-  const { width, height } = useWindowDimensions();
+  //Handlers
 
-  useEffect(() => {
-    const sub = navigation.addListener("focus", () => {});
-  }, [navigation]);
+  //Clear Async Storage
 
-  useEffect(() => {
-    dispatch(getUsers());
-  }, []);
-
-  // cleaning the Async Storage
-  const clearAll = async () => {
+  clearAll = async () => {
     try {
       await AsyncStorage.clear();
-    } catch (e) {
-      // clear error
-    }
+    } catch (e) {}
 
     console.log("Done.");
   };
 
   //Validate Email Function
-  const validateEmail = (text) => {
+  validateEmail = (text) => {
     let re = /\S+@\S+\.\S+/;
     let regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
 
-    setEmail(text);
     if (re.test(text) || regex.test(text) || text == "") {
-      setCheckValidEmail(false);
+      this.setState({
+        ...this.state,
+        email: text,
+        checkValidEmail: false,
+      });
     } else {
-      setCheckValidEmail(true);
+      this.setState({
+        ...this.state,
+        email: text,
+        checkValidEmail: true,
+      });
     }
   };
 
   //Authentication Function
-  const Auth = () => {
+  Auth = () => {
     let isValid = false;
-    users.filter((item) => {
-      if (item.email === email) {
-        if (item.password === password) {
+    this.props.users.filter((item) => {
+      if (item.email === this.state.email) {
+        if (item.password === this.state.password) {
           isValid = true;
-          setPassword("");
-          setEmail("");
-          dispatch(currentUser({ currentUser: item }));
-          navigation.navigate({
+          this.setState({
+            ...this.state,
+            password: "",
+            email: "",
+          });
+
+          this.props.currentUser({ currentUser: item });
+
+          this.props.navigation.navigate({
             name: "TodoList",
           });
         }
@@ -89,87 +96,109 @@ function Login({ navigation, route }) {
       ToastAndroid.show("Incorrect Credentials!", ToastAndroid.SHORT);
   };
 
-  return (
-    <ScrollView style={[styles.container]}>
-      <View style={{ height: height }}>
-        <View style={{ flex: 0.9 }}>
-          <View style={{ zIndex: 1 }}>
-            <View style={[styles.item, { zIndex: data.length }]}>
-              <LinearGradient
-                style={StyleSheet.absoluteFill}
-                colors={["#B0DAFF", "#B0DAFF", "#B0DAFF"]}
+  render() {
+    return (
+      <ScrollView style={[styles.container]}>
+        <View style={{ height: height }}>
+          <View style={{ flex: 0.9 }}>
+            <View style={styles.topStyle}></View>
+
+            <View style={styles.upperText}>
+              <AppText
+                style={{ fontFamily: "Poppins_600SemiBold", fontSize: 40 }}
+              >
+                Login
+              </AppText>
+              <AppText
+                style={{ fontFamily: "Poppins_200ExtraLight", fontSize: 20 }}
+              >
+                Please sign in to continue.
+              </AppText>
+            </View>
+            <View style={styles.middleText}>
+              <Iconic
+                name="email-outline"
+                size={30}
+                height={70}
+                placeholder="EMAIL"
+                value={this.state.email}
+                onChangeText={this.validateEmail}
+              />
+              <View style={styles.wrongText}>
+                {this.state.checkValidEmail ? (
+                  <Text style={styles.textFailed}>Wrong Format Email</Text>
+                ) : null}
+              </View>
+              <Iconic
+                name="lock-outline"
+                size={30}
+                height={70}
+                placeholder="PASSWORD"
+                secureTextEntry={this.state.seePassword}
+                onChangeText={(text) =>
+                  this.setState({
+                    ...this.state,
+                    password: text,
+                  })
+                }
+                value={this.state.password}
+                onPress={() =>
+                  this.setState({
+                    ...this.state,
+                    seePassword: !this.state.seePassword,
+                  })
+                }
+              />
+            </View>
+
+            <View style={styles.Last}>
+              <AppButton
+                style={styles.button}
+                title="LOGIN"
+                onPress={this.Auth}
+                // onPress={this.clearAll}
+                size={18}
+                font="Poppins_700Bold"
+                textColor="black"
               />
             </View>
           </View>
-          <View style={styles.upperText}>
-            <AppText
-              style={{ fontFamily: "Poppins_600SemiBold", fontSize: 40 }}
-            >
-              Login
+          <View style={styles.LastText}>
+            <AppText style={{ fontFamily: "Poppins_400Regular" }}>
+              Don't have an account?
+              <AppText
+                onPress={() => {
+                  this.props.navigation.navigate({
+                    name: "SignUp",
+                  });
+                }}
+                style={{ color: "#B0DAFF", fontFamily: "Poppins_600SemiBold" }}
+              >
+                Sign up
+              </AppText>
             </AppText>
-            <AppText
-              style={{ fontFamily: "Poppins_200ExtraLight", fontSize: 20 }}
-            >
-              Please sign in to continue.
-            </AppText>
-          </View>
-          <View style={styles.middleText}>
-            <Iconic
-              name="email-outline"
-              size={30}
-              height={70}
-              placeholder="EMAIL"
-              value={email}
-              onChangeText={validateEmail}
-            />
-            <View style={styles.wrongText}>
-              {checkValidEmail ? (
-                <Text style={styles.textFailed}>Wrong Format Email</Text>
-              ) : null}
-            </View>
-            <Iconic
-              name="lock-outline"
-              size={30}
-              height={70}
-              placeholder="PASSWORD"
-              secureTextEntry={seePassword}
-              onChangeText={(text) => setPassword(text)}
-              value={password}
-              onPress={() => setSeePassword(!seePassword)}
-            />
-          </View>
-
-          <View style={styles.Last}>
-            <AppButton
-              style={styles.button}
-              title="LOGIN"
-              onPress={Auth}
-              // onPress={clearAll}
-              size={18}
-              font="Poppins_700Bold"
-              textColor="black"
-            />
           </View>
         </View>
-        <View style={styles.LastText}>
-          <AppText style={{ fontFamily: "Poppins_400Regular" }}>
-            Don't have an account?
-            <AppText
-              onPress={() => {
-                navigation.navigate({
-                  name: "SignUp",
-                });
-              }}
-              style={{ color: "#B0DAFF", fontFamily: "Poppins_600SemiBold" }}
-            >
-              Sign up
-            </AppText>
-          </AppText>
-        </View>
-      </View>
-    </ScrollView>
-  );
+      </ScrollView>
+    );
+  }
 }
+
+//mapState
+const mapStateToProps = (state) => {
+  return {
+    users: state.user.users,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getUsers: () => dispatch(getUsers()),
+    currentUser: (payload) => dispatch(currentUser(payload)),
+  };
+};
+
+//Stylesheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -185,6 +214,11 @@ const styles = StyleSheet.create({
   upperText: {
     marginTop: 20,
     marginHorizontal: 15,
+  },
+  topStyle: {
+    backgroundColor: "#B0DAFF",
+    height: 150,
+    borderBottomLeftRadius: 200,
   },
   middleText: {
     marginTop: 40,
@@ -236,4 +270,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

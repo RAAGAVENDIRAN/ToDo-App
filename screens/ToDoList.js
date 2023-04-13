@@ -1,98 +1,94 @@
 //default Imports
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Image } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Image,
+  TouchableWithoutFeedback,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 //Third-Party Imports
 import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
-
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
-//components IMports
+//components Imports
 import SearchToDo from "../components/SearchToDo";
 import BottomButton from "../components/BottomButton";
 import Listing from "../components/Listing";
 import ListingPending from "../components/ListingPending";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  GET_TODO,
-  currentUser,
-  removeDetails,
-  serachTodo,
-  setTodo,
-} from "../features/actions";
-import { useIsFocused } from "@react-navigation/native";
-import { TouchableWithoutFeedback } from "react-native";
+
+//Component Imports
 import AppText from "../components/AppText";
 
-import store from "../features/store";
+//actions
+import { GET_TODO } from "../features/actions";
 
+//Tab Navigator
 const Tab = createMaterialTopTabNavigator();
 
-let obj;
+//var
+let findTab = 1;
+
 function ToDoList({ navigation }) {
-  //redux
+  //dispatcher
   const dispatch = useDispatch();
+
+  //selectors
   const user = useSelector((state) => state.user.currentUser);
-
-  const isFocused = useIsFocused();
-  let profile = user.profile;
-
-  //getting data from redux
   const { completedTodo, pendingTodo } = useSelector((state) => state.todo);
-
-  // const trashTodo = useSelector((state) => state.todo.trashTodo);
   const isFetched = useSelector((state) => state.todo.isFetched);
-  let searchObj = useSelector((state) => state.todo.searchObj);
-  console.log(searchObj);
 
+  //constants
+  const userId = user.userId;
+  const username = user.username;
+
+  //var
+  let profile = user.profile;
   let completedTodoArr = [];
+  let pendingTodoArr = [];
+  let searchTodoArr = [];
+
+  //states
+  const [search, setSearch] = useState("");
+  const [searchTodo, setSearchTodo] = useState(completedTodo);
+
+  //Converting Objects to arrays
   Object.keys(completedTodo).filter((key) => {
     completedTodoArr.push(completedTodo[key.toString()]);
   });
-  let pendingTodoArr = [];
+
   Object.keys(pendingTodo).filter((key) => {
     pendingTodoArr.push(pendingTodo[key.toString()]);
   });
 
-  //state
-  const [search, setSearch] = useState("");
-  // const [retrieve, setRetrieve] = useState(false);
+  Object.keys(searchTodo).filter((key) => {
+    searchTodoArr.push(searchTodo[key.toString()]);
+  });
 
-  //datas
-  const userId = user.userId;
-  const username = user.username;
-  // console.log(userId);
+  //Handlers
 
   //getdata from async storage
   useEffect(() => {
     if (!isFetched) {
-      console.log("Get Data Called");
       dispatch({
         type: GET_TODO,
         payload: {
           userId: userId,
         },
       });
-      // async function getTodos() {
-      //   const jsonValue = await AsyncStorage.getItem(`@todo ${userId}`);
-      //   const value = JSON.parse(jsonValue);
-
-      //   dispatch(
-      //     setTodo(
-      //       value
-      //         ? value.userId
-      //         : {
-      //             completedTodo: {},
-      //             pendingTodo: {},
-      //             trashTodo: {},
-      //           }
-      //     )
-      //   );
-      // }
     }
-  }, [isFocused, user]);
+  }, [user]);
+
+  //setting tab
+  useEffect(() => {
+    if (findTab == 1) {
+      setSearchTodo(completedTodo);
+    } else {
+      setSearchTodo(pendingTodo);
+    }
+  }, [completedTodo, pendingTodo]);
 
   //fonts
   let [fontsLoaded] = useFonts({ Poppins_400Regular });
@@ -100,31 +96,30 @@ function ToDoList({ navigation }) {
   // Search function
   const Searching = (newtext) => {
     setSearch(newtext);
-    console.log(obj);
-    console.log("Here");
-    if (Object.values(obj).length) {
-      console.log("Raagha");
-      dispatch(
-        serachTodo({
-          obj: obj,
-          bool: Object.values(obj)[0].completed,
-          newtext: newtext,
-        })
-      );
+
+    if (Object.values(findTab ? completedTodo : pendingTodo).length) {
+      let objSearch = Object.values(
+        findTab ? completedTodo : pendingTodo
+      ).filter((item) => {
+        let itemData = item.title ? item.title.toUpperCase() : "".toUpperCase();
+        let textData = newtext.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+
+      setSearchTodo(objSearch);
     }
   };
 
   // setting the current tab array
   const setTab = (tab) => {
     if (tab == 1) {
-      obj = searchObj.completedTodo;
+      setSearchTodo(completedTodo);
     } else {
-      obj = searchObj.pendingTodo;
+      setSearchTodo(pendingTodo);
     }
-    // console.log(obj);
   };
 
-  if (isFocused) {
+  if (fontsLoaded) {
     return (
       <View style={styles.container}>
         <View style={styles.Top}>
@@ -195,10 +190,9 @@ function ToDoList({ navigation }) {
               focus: (e) => {
                 console.log("IN cOMPLETED");
                 setTab(1);
-                // setRetrieve(!retrieve);
+                findTab = 1;
               },
               blur: (e) => {
-                // setTab(0);
                 if (search !== "") Searching("");
               },
             })}
@@ -216,7 +210,9 @@ function ToDoList({ navigation }) {
               return (
                 <Listing
                   navigation={navigation}
-                  completedTodoArr={completedTodoArr}
+                  completedTodoArr={
+                    findTab === 1 ? searchTodoArr : completedTodoArr
+                  }
                 />
               );
             }}
@@ -225,8 +221,7 @@ function ToDoList({ navigation }) {
             listeners={({ navigation, route }) => ({
               focus: (e) => {
                 setTab(0);
-
-                // setRetrieve(!retrieve);
+                findTab = 0;
               },
               blur: (e) => {
                 if (search !== "") Searching("");
@@ -237,7 +232,9 @@ function ToDoList({ navigation }) {
               return (
                 <ListingPending
                   navigation={navigation}
-                  pendingTodoArr={pendingTodoArr}
+                  pendingTodoArr={
+                    findTab === 0 ? searchTodoArr : pendingTodoArr
+                  }
                 />
               );
             }}
@@ -257,6 +254,8 @@ function ToDoList({ navigation }) {
     );
   }
 }
+
+//StyleSheet
 
 const styles = StyleSheet.create({
   container: {

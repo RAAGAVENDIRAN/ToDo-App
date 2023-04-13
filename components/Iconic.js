@@ -12,8 +12,6 @@ function Iconic({
   onPress,
   height,
   placeholder,
-  isFocused,
-
   secureTextEntry,
   onChangeText,
   value,
@@ -64,15 +62,14 @@ function Iconic({
   );
 }
 
+//StyleSheet
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-
     margin: 10,
     padding: 2,
     alignItems: "center",
     justifyContent: "center",
-
     borderRadius: 10,
     elevation: 5,
     shadowOpacity: 0.88,

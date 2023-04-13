@@ -1,150 +1,143 @@
 // default imports
-import React, { useEffect, useState } from "react";
+import React, { Component } from "react";
 import { StyleSheet, View, FlatList, Alert } from "react-native";
-import { useSelector, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 
 //third part IMports
-import { useFonts, Poppins_400Regular } from "@expo-google-fonts/poppins";
 import { MaterialIcons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 //Components Imports
 import AppText from "../components/AppText";
 import DisplayListTrash from "../components/DisplayListTrash";
 import SearchToDo from "../components/SearchToDo";
-import { clearTrash, serachTodo } from "../features/actions";
 
-import { GET_TODO } from "../features/actions";
+//actions
+import { clearTrash } from "../features/actions";
 
-let arr = [];
+class Trash extends Component {
+  constructor(props) {
+    let tempTrash = [];
+    super(props);
+    Object.keys(this.props.trashTodo).filter((key) => {
+      tempTrash.push(this.props.trashTodo[key.toString()]);
+    });
+    this.state = {
+      search: "",
+      searchTodoArr: tempTrash,
+      trashTodo: this.props.trashTodo,
+      userId: this.props.user.userId,
+    };
+  }
 
-export default function Trash({ navigation, route }) {
-  //redux
-  const user = useSelector((state) => state.user.currentUser);
-  const dispatch = useDispatch();
-
-  // const completedTodo = useSelector((state) => state.todo.completedTodo);
-  // const pendingTodo = useSelector((state) => state.todo.pendingTodo);
-  const trashTodo = useSelector((state) => state.todo.trashTodo);
-  let obj = useSelector((state) => state.todo.trashTodo);
-  // let temp = trashTodo;
-  // arr = temp;
-
-  //datas
-  const userId = user.userId;
-
-  //
-
-  // let completedTodoArr = [];
-  // let pendingTodoArr = [];
-  let trashTodoArr = [];
-
-  // Object.keys(completedTodo).filter((key) => {
-  //   completedTodoArr.push(completedTodo[key.toString()]);
-  // });
-
-  // Object.keys(pendingTodo).filter((key) => {
-  //   pendingTodoArr.push(pendingTodo[key.toString()]);
-  // });
-
-  Object.keys(trashTodo).filter((key) => {
-    trashTodoArr.push(trashTodo[key.toString()]);
-  });
-
-  console.log(trashTodoArr);
-
-  //states
-  const [search, setSearch] = useState("");
-  // const [retrieve, setRetrieve] = useState(false);
-
-  //fonts
-  let [fontsLoaded] = useFonts({ Poppins_400Regular });
-
-  // const callDB = () => {
-  //   setRetrieve(true);
-  // };
-
-  //searching
-  const Searching = (newtext) => {
-    setSearch(newtext);
-
-    if (Object.values(obj).length) {
-      dispatch(
-        serachTodo({
-          obj: obj,
-          bool: "trash",
-          newtext: newtext,
-        })
-      );
+  componentDidUpdate(prevprops, prevState) {
+    if (prevState.trashTodo !== this.props.trashTodo) {
+      this.setState({
+        trashTodo: this.props.trashTodo,
+      });
     }
+  }
+
+  //Handlers
+  Searching = (newtext) => {
+    let tempTrash = [];
+    let objSearch = Object.values(this.state.trashTodo).filter((item) => {
+      let itemData = item.title ? item.title.toUpperCase() : "".toUpperCase();
+      let textData = newtext.toUpperCase();
+      return itemData.indexOf(textData) > -1;
+    });
+    Object.keys(objSearch).filter((key) => {
+      tempTrash.push(objSearch[key.toString()]);
+    });
+    this.setState({
+      ...this.state,
+      search: newtext,
+      searchTodoArr: tempTrash,
+    });
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.Top}>
-        <View style={[styles.Headercontainer, { flexDirection: "row" }]}>
-          <MaterialIcons
-            name="arrow-back"
-            size={30}
-            onPress={() => {
-              navigation.goBack();
-            }}
-          />
-          <AppText style={styles.DesignText}> TRASH</AppText>
-          <MaterialIcons
-            name="delete"
-            style={styles.Headericon}
-            size={30}
-            color="black"
-            onPress={() => {
-              if (trashTodoArr.length > 0) {
-                Alert.alert("Are you Sure?", "Your Trash  will be deleted", [
-                  {
-                    text: "Confirm",
-                    onPress: () => {
-                      dispatch(clearTrash());
+  render() {
+    return (
+      <View style={styles.container}>
+        <View style={styles.Top}>
+          <View style={[styles.Headercontainer, { flexDirection: "row" }]}>
+            <MaterialIcons
+              name="arrow-back"
+              size={30}
+              onPress={() => {
+                this.props.navigation.goBack();
+              }}
+            />
+            <AppText style={styles.DesignText}> TRASH</AppText>
+            <MaterialIcons
+              name="delete"
+              style={styles.Headericon}
+              size={30}
+              color="black"
+              onPress={() => {
+                if (this.state.trashTodoArr.length > 0) {
+                  Alert.alert("Are you Sure?", "Your Trash  will be deleted", [
+                    {
+                      text: "Confirm",
+                      onPress: () => {
+                        this.props.clearTrash();
+                      },
                     },
-                  },
-                  {
-                    text: "Cancel",
+                    {
+                      text: "Cancel",
 
-                    style: "cancel",
-                  },
-                ]);
-              } else {
-                Alert.alert("OOPS!", "EMPTY", [
-                  {
-                    text: "Confirm",
-                  },
-                  {
-                    text: "Cancel",
+                      style: "cancel",
+                    },
+                  ]);
+                } else {
+                  Alert.alert("OOPS!", "EMPTY", [
+                    {
+                      text: "Confirm",
+                    },
+                    {
+                      text: "Cancel",
 
-                    style: "cancel",
-                  },
-                ]);
-              }
-            }}
+                      style: "cancel",
+                    },
+                  ]);
+                }
+              }}
+            />
+          </View>
+
+          <SearchToDo
+            value={this.search}
+            placeholder={"Search Here"}
+            onChangeText={this.Searching}
           />
         </View>
-
-        <SearchToDo
-          value={search}
-          placeholder={"Search Here"}
-          onChangeText={Searching}
+        <FlatList
+          data={this.state.searchTodoArr}
+          keyExtractor={(item) => item.id}
+          style={{ backgroundColor: "#fff" }}
+          renderItem={({ item }) => (
+            <DisplayListTrash data={this.state.searchTodoArr} item={item} />
+          )}
         />
       </View>
-      <FlatList
-        data={trashTodoArr}
-        keyExtractor={(item) => item.id}
-        style={{ backgroundColor: "#fff" }}
-        renderItem={({ item }) => (
-          <DisplayListTrash data={trashTodoArr} item={item} />
-        )}
-      />
-    </View>
-  );
+    );
+  }
 }
 
+//mapState
+const mapStateToProps = (state) => {
+  return {
+    trashTodo: state.todo.trashTodo,
+    user: state.user.currentUser,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    clearTrash: () => dispatch(clearTrash()),
+  };
+};
+
+//Stylesheet
 const styles = StyleSheet.create({
   Headercontainer: {
     paddingTop: 20,
@@ -167,3 +160,5 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_700Bold_Italic",
   },
 });
+
+export default connect(mapStateToProps, mapDispatchToProps)(Trash);

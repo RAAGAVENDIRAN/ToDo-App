@@ -7,21 +7,24 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 //Component Import
 import AppText from "../components/AppText";
 import AppButton from "../components/AppButton";
 import IconsProfile from "../components/IconsProfile";
 import IconsGreater from "../components/IconGreater";
-import { removeCurrentUser, removeDetails } from "../features/actions";
 
+//constants
 const { width, height } = Dimensions.get("window");
 
 function Profile({ navigation }) {
-  const dispatch = useDispatch();
+  //Selectors
   const user = useSelector((state) => state.user.currentUser);
+
+  //Var
   let profile = user.profile;
+
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
@@ -83,7 +86,6 @@ function Profile({ navigation }) {
         <TouchableOpacity
           style={styles.lastComponent}
           onPress={() => {
-            // dispatch(removeCurrentUser());
             navigation.navigate({
               name: "Login",
             });
@@ -102,6 +104,7 @@ function Profile({ navigation }) {
   );
 }
 
+//StyleSheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,
