@@ -23,9 +23,6 @@ import Iconic from "../components/Iconic";
 //actions
 import { addUser } from "../features/actions";
 
-//constants
-const data = [""];
-
 function SignUp({ navigation }) {
   //dispatcher
   const dispatch = useDispatch();
@@ -59,11 +56,10 @@ function SignUp({ navigation }) {
   //validating email
   const validateEmail = (text) => {
     let re = /\S+@\S+\.\S+/;
-    let regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
 
     setEmail(text);
 
-    if (re.test(text) || regex.test(text) || text == "") {
+    if (re.test(text) || text == "") {
       setCheckValidEmail(false);
     } else {
       setCheckValidEmail(true);
