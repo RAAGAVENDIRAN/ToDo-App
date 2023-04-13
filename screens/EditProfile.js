@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Dimensions,
   Alert,
+  StatusBar,
   Image,
   ToastAndroid,
   ScrollView,

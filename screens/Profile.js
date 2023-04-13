@@ -6,6 +6,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
+  StatusBar,
 } from "react-native";
 import { useSelector } from "react-redux";
 

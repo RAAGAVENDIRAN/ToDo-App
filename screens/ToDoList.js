@@ -5,6 +5,7 @@ import {
   View,
   Image,
   TouchableWithoutFeedback,
+  StatusBar,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 

@@ -1,6 +1,6 @@
 // default imports
 import React, { Component } from "react";
-import { StyleSheet, View, FlatList, Alert } from "react-native";
+import { StyleSheet, View, FlatList, StatusBar, Alert } from "react-native";
 import { connect } from "react-redux";
 
 //third part IMports
@@ -150,7 +150,6 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: "#C6CFFF",
   },
 
   DesignText: {

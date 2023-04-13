@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   ToastAndroid,
+  StatusBar,
   Text,
   Dimensions,
 } from "react-native";
@@ -203,13 +204,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  item: {
-    height: 250,
-    borderBottomLeftRadius: 100, // logic goes here
-    marginTop: -100, // move container
-    paddingTop: 100, // move inner item down
-    overflow: "hidden",
-  },
+
   upperText: {
     marginTop: 20,
     marginHorizontal: 15,

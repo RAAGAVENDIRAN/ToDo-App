@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   Dimensions,
+  StatusBar,
   ScrollView,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";

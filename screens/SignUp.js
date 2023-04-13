@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   ToastAndroid,
+  StatusBar,
   useWindowDimensions,
   Text,
 } from "react-native";
@@ -87,7 +88,7 @@ function SignUp({ navigation }) {
     }
 
     const isContainsLowerCase = /^(?=.*[a-z]).*$/;
-    if (!isContainsUpperCase.test(value)) {
+    if (!isContainsLowerCase.test(value)) {
       return "Password must have at least one LowerCase Character.";
     }
 
@@ -244,13 +245,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  item: {
-    height: 250,
-    borderBottomLeftRadius: 100, // logic goes here
-    marginTop: -100, // move container
-    paddingTop: 100, // move inner item down
-    overflow: "hidden",
-  },
+
   upperText: {
     marginTop: 20,
     marginHorizontal: 15,

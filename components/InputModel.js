@@ -5,6 +5,7 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  StatusBar,
   Alert,
   ScrollView,
   Dimensions,
